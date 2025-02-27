@@ -1,0 +1,16 @@
+{
+    "scripts": {
+        "build": "postcss css/main.scss -o ../static/css/global.css",
+        "watch": "postcss css/main.scss -o ../static/css/global.css --watch"
+    },
+    "dependencies": {
+        "@tailwindcss/postcss": "^4.0.9",
+        "autoprefixer": "^10.4.1",
+        "postcss": "^8.5.3",
+        "postcss-cli": "^9.1.0",
+        "tailwindcss": "^4.0.9"
+    },
+    "devDependencies": {
+        "daisyui": "^5.0.0-beta.9"
+    }
+}
