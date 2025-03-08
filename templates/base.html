@@ -10,16 +10,17 @@
         <!-- <meta name="msapplication-TileColor" content="#fff"/> -->
         <!-- <meta name="theme-color" content="#fff"/> -->
         
-        <title>Document</title>
+        <link rel="icon" type="image/x-icon" href="{% static 'img' %}/{{icon}}">
+        <title>{{title}}</title>
     </head>
 
-    <body>
+    <body >
         <div class="">
             <main class="">
                 {% block content %}
                 {% endblock %}
             </main>
         </div>
-        <script src="{% static 'htmx.min.js' %}" defer></script>
+        <script src="{% static 'js/htmx.min.js' %}" defer></script>
     </body>
 </html>
