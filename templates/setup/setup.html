@@ -5,19 +5,22 @@
 <div class="grid items-center justify-center p-2">
     <div class="grid text-center self-start justify-items-center items-center py-10 h-fit">
         <img src="{% static 'img/logo-bg.svg' %}" alt="Gleen Logo" srcset="">
-        <h1 class="text-2xl pb-2">Hello there !</h1>
-        <div class="">
-            <p>Welcome to Gleen! A lightweight, self-hosted issue tracker</p>
-            <p>—let’s set up your organization, admin, and server details to get started! 🚀</p>
+        <div class="" id="remove_on_csu">
+            <h1 class="text-2xl pb-2">Hello there !</h1>
+            <div class="">
+                <p>Welcome to Gleen! A lightweight, self-hosted issue tracker</p>
+                <p>—let’s set up your organization, admin, and server details to get started! 🚀</p>
+            </div>
         </div>
     </div>
 
-    <div class="grid self-start">
-        <form action="/setup/registerOrg" method="post" enctype="multipart/form-data">
+    <div class="grid self-start" id="setup-carousel">
+        <form hx-post="register/" hx-target="#setup-carousel" enctype="multipart/form-data">
+            {% csrf_token %}
             <div class="carousel w-full space-x-2">
-                <div id="slide1" class="carousel-item justify-center relative w-full">
+                <div id="slide1" class="carousel-item relative w-full">
                     <div class="card bg-base-200 justify-between p-2 px-4 flex-row w-full h-fit">
-                        <input type="text" placeholder="Enter your organization name." class="w-full outline-none"/>
+                        <input name="name" required="required" type="text" placeholder="Enter your organization name." class="w-full outline-none"/>
                         <a href="#slide2">
                             <button type="button" class="btn outline-accent border-accent accent p-2">
                                 <img src="{% static 'img/arrow-right.svg' %}" height="24px" width="24px" alt="proceed">
@@ -28,7 +31,7 @@
 
                 <div id="slide2" class="carousel-item relative w-full">
                     <div class="card bg-base-200 justify-between p-2 px-4 flex-row w-full h-fit">
-                        <input type="text" placeholder="What is organization's goal?" class="w-full outline-none"/>
+                        <input required="required" name="goal" type="text" placeholder="What is organization's goal?" class="w-full outline-none"/>
                         <a href="#slide3">
                             <button type="button" class="btn outline-accent border-accent accent p-2">
                                 <img src="{% static 'img/arrow-right.svg' %}" height="24px" width="24px" alt="proceed">
@@ -41,7 +44,7 @@
                 <div id="slide3" class="carousel-item relative w-full">
                     <div class="flex flex-col items-center text-center space-y-4 w-full h-fit">
                         <div class="grid justify-center">
-                            {% include "../component/image_btn.html" %}
+                            {% include "../component/image_btn.html" with imagePreviewId="setup_img_preview" imageInputId="setup_img_input" %}
                         </div>
                         <p>Upload organization's logo</p>
                         <a href="#slide2" class="underline">back</a>

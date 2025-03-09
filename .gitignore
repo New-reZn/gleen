@@ -5,3 +5,9 @@ __pycache__
 .hintrc
 .idea
 .vscode
+
+media/admins/*
+media/global/*
+media/devs/*
+media/reps/*
+!media/global/logo.svg

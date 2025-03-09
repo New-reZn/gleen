@@ -1,26 +1,26 @@
 {% load static %}
 
-<label for="imageInput" class="bg-accent p-4 relative rounded-full cursor-pointer overflow-hidden">
+<label for="{{ imageInputId }}" class="bg-accent p-4 relative rounded-full cursor-pointer overflow-hidden">
     <img src="{% static 'img/camera.svg' %}" alt="image upload" class="">
-    <img src="" alt="image upload" class="absolute w-full h-full bg-primary top-0 left-0 hidden" id="imagePreview">
+    <img src="" alt="image upload" class="absolute w-full h-full bg-primary top-0 left-0 hidden" id="{{ imagePreviewId }}">
 </label>
-<input id="imageInput" type="file" accept="image/*" placeholder="What is organization's goal?" class="hidden absolute outline-none"/>
+<input id="{{ imageInputId }}" name="img" type="file" accept="image/*" placeholder="What is organization's goal?" class="hidden absolute outline-none"/>
 
 <script>
-    const imageInput = document.getElementById('imageInput');
-    const imagePreview = document.getElementById('imagePreview');
+    const {{ imageInputId }} = document.getElementById('{{ imageInputId }}');
+    const {{ imagePreviewId }} = document.getElementById('{{ imagePreviewId }}');
 
-    imageInput.addEventListener('change', (event) => {
+    {{ imageInputId }}.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = () => {
-                imagePreview.src = reader.result;
-                imagePreview.classList.remove('hidden');
+                {{ imagePreviewId }}.src = reader.result;
+                {{ imagePreviewId }}.classList.remove('hidden');
             };
             reader.readAsDataURL(file);
         } else {
-            imagePreview.classList.add('hidden');
+            {{ imagePreviewId }}.classList.add('hidden');
         }
     });
 </script>

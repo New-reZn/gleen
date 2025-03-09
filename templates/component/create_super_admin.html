@@ -1,0 +1,17 @@
+<form method="post" class="card bg-base-200 p-6 grid items-center justify-self-center justify-center space-y-3 w-96" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <input type="hidden" name="orgName" value="{{ name }}">
+    <input type="hidden" name="orgGoal" value="{{ goal }}">
+    <input type="hidden" name="orgPath" value="{{ path }}">
+
+    <p>Let’s create your first user with full control.</p>
+    <div class="grid justify-center">
+        {% include "../component/image_btn.html" with imagePreviewId="csu_img_preview" imageInputId="csu_img_input" %}
+    </div>
+    <input name="user" type="text" placeholder="Enter name" class="input text-center" />
+    <input name="password" type="password" placeholder="Enter password" class="input text-center" />
+    <button class="btn outline-accent border-accent accent p-2" type="submit">Create Admin</button>
+</form>
+
+<div hx-swap-oob="true" class="hidden" id="remove_on_csu"></div>
