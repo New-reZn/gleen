@@ -11,3 +11,5 @@ media/global/*
 media/devs/*
 media/reps/*
 !media/global/logo.svg
+!media/**/user.svg
+*.sqlite3

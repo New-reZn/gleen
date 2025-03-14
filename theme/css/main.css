@@ -1,0 +1,54 @@
+@import "tailwindcss" source("../../templates");
+@source "../../templates";
+@plugin "daisyui" {
+  themes: gleen --default;
+}
+@font-face {
+  font-family: "inter";
+  src: url("../../static/fonts/Inter-VariableFont.ttf");
+}
+* {
+  font-family: "inter";
+}
+
+@plugin "daisyui/theme" {
+  name: "gleen";
+  default: true; /* set as default */
+  prefersdark: true; /* set as default dark mode (prefers-color-scheme:dark) */
+  color-scheme: dark;
+  --color-base-100: #111111;
+  --color-base-200: #222222;
+  --color-base-300: #121212;
+  --color-base-content: #ffffff;
+  --color-primary: #000;
+  --color-primary-content: #000;
+  --color-secondary: #fff;
+  --color-secondary-content: #fff;
+  --color-accent: #0BE872;
+  --color-accent-content: #0BE87290;
+  --color-neutral: #CCCCCC66;
+  --color-neutral-content: #fff;
+  --color-info: #fff;
+  --color-info-content: #fff;
+  --color-success: #fff;
+  --color-success-content: #fff;
+  --color-warning: #fff;
+  --color-warning-content: #fff;
+  --color-error: #fff;
+  --color-error-content: #fff;
+  /* border radius */
+  --radius-selector: 1rem;
+  --radius-field: 14px;
+  --radius-box: 14px;
+  /* base sizes */
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  /* border size */
+  --border: 1px;
+  /* effects */
+  --depth: 1;
+  --noise: 0;
+}
+.accent {
+  @apply bg-gradient-to-b from-[#029244] to-[#0BE872];
+}/*# sourceMappingURL=main.css.map */

@@ -2,4 +2,21 @@
 {% load static %}
 {% block content %}
 
+<div class="grid h-screen items-center justify-center">
+    <div class="text-center space-y-4">
+        <h1 class="text-3xl">{{ config.name }}</h1>
+        <p class="text-lg">Welcome back! please sign in</p>
+        <form class="space-y-4 grid w-80 items-center"  action="/signin/" method="POST">
+            {% csrf_token %}
+            <input type="text" placeholder="username" class="w-full input text-center border-[#ccc9]" name="username">
+            <input type="password" placeholder="password" class=" w-full input text-center border-[#ccc9]" name="password" >
+            <button class="mt-2 btn outline-accent border-accent accent p-2 px-10 brightness-90 w-fit justify-self-center" type="submit">
+                <img src="{% static 'img/login.svg' %}" height="24px" width="24px" alt="login button" >
+                <p>Sign In</p>
+            </button>
+        </form>
+
+    </div>
+</div>
+
 {% endblock content %}
