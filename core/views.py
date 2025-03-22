@@ -9,8 +9,16 @@ from core.groups import *
 # Create your views here.
 
 @gleen_authenticate
-def index(request):    
-    return HttpResponse("gleen welcomes you")
+def index(request):
+    config=GlobalSettings.objects.first()
+        
+    data={
+        "config":config,
+        "title":f"{config.name}",
+        "icon":f"{config.image.url}"  
+    }
+    
+    return render(request,"home.html",data)
 
 
 def signin(request):

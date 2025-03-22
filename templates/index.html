@@ -1,0 +1,67 @@
+
+{% extends "base.html" %}
+
+{% load static %}
+{% block content %}
+<div class="p-4">
+    <div class="navbar bg-base-200 rounded-2xl shadow-sm p-1">
+        <div class="flex-1">
+            <a class="btn btn-ghost font-bold text-xl">{{config.name}}</a>
+        </div>
+
+        <div class="flex-none">
+            <ul class="menu menu-horizontal">
+                <li class="mr-1 dropdown">
+                    <div tabindex="0" role="button" type="button">
+                        <div class="avatar">
+                            <div class="rounded-lg w-[25px] h-[25px]">
+                                <img src="/media/admins/user.svg" alt="notification" srcset="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div tabindex="0" style="left:-3.1rem; top:3rem"  class="dropdown-content bg-base-200 rounded-box z-1 w-52 p-2 shadow-sm">
+                        <div class="p-2 flex items-center gap-2">
+                            <img src="{% static 'img/logout.svg' %}" height="24px" width="24px" alt="">
+                            <p>Sign Out</p>
+                        </div>
+                    </div>
+                </li>
+                
+                <li class="dropdown">
+
+                    <div tabindex="0" role="button">
+                        <img src="{% static 'img/notification.svg' %}" alt="notification" height="24px" width="24px" srcset="">
+                    </div>
+                                        
+                    {% if notifications is empty %}
+                        <div tabindex="0" style="left:-17.3rem; top:3rem"  class="dropdown-content bg-base-200 rounded-box z-1 w-96 shadow-sm">
+                            <div class="p-2">
+                                No new notifications.
+                            </div>
+                        </div>
+                    {% else %}
+                        <ul tabindex="0" style="left:-18.5rem; top:3rem"  class="dropdown-content menu bg-base-200 rounded-box z-1 w-96 p-2 shadow-sm">
+                            <li><a>Item 1</a></li>
+                            <li><a>Item 2</a></li>
+                        </ul>
+                    {% endif %}
+
+                </li>
+
+                <li>
+                    <a href="/">
+                        <img src="{% static 'img/settings.svg' %}" alt="settings" height="24px" width="24px" srcset="">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="py-2">
+        {% block main %}
+        {% endblock %}
+    </div>
+</div>
+
+{% endblock content %}
