@@ -11,12 +11,15 @@
   font-family: "inter";
 }
 
+@theme {
+  --color-drop: #111;
+}
 @plugin "daisyui/theme" {
   name: "gleen";
   default: true; /* set as default */
   prefersdark: true; /* set as default dark mode (prefers-color-scheme:dark) */
   color-scheme: dark;
-  --color-base-100: #111111;
+  --color-base-100: #181818;
   --color-base-200: #222222;
   --color-base-300: #121212;
   --color-base-content: #ffffff;
@@ -30,8 +33,8 @@
   --color-neutral-content: #fff;
   --color-info: #fff;
   --color-info-content: #fff;
-  --color-success: #fff;
-  --color-success-content: #fff;
+  --color-success: #008015;
+  --color-success-content: #2DFE5B99;
   --color-warning: #fff;
   --color-warning-content: #fff;
   --color-error: #fff;
@@ -51,4 +54,29 @@
 }
 .accent {
   @apply bg-gradient-to-b from-[#029244] to-[#0BE872];
+}
+
+#top-layer:has(dialog:open) {
+  display: grid;
+}
+
+#top-layer {
+  display: none;
+}
+
+#tabs-container:has(#report-tab:checked) ~ #Report {
+  display: flex;
+}
+
+#tabs-container:has(#board-tab:checked) ~ #Board {
+  display: flex;
+}
+
+#tabs-container:has(#issues-tab:checked) ~ #Issues {
+  display: flex;
+}
+
+html {
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: none;
 }/*# sourceMappingURL=main.css.map */

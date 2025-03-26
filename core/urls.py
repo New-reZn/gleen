@@ -6,4 +6,5 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("signin/",views.signin),
     path("signout/",views.signin),
+    path("create_plan/",views.create_plan)
 ]

@@ -4,7 +4,57 @@
 
 {% block main %}
 
+{% if not plans is empty %}
+<div class="flex flex-col md:flex-row gap-4 pb-3 px-4 items-center" id="tabs-container">
+    <div class="grow flex justify-between items-center">
+        <div class="flex flex-col">
+            <p class="capitalize text-lg">{{plans.0.name}}</p>
+            <p class="capitalize text-sm font-light opacity-30 truncate w-96 break-words">{{plans.0.desc}}</p>
+        </div>
+        <button type="button"  class="cursor-pointer p-2 bg-base-200 rounded-lg">
+            <img src="{% static 'img/change.svg' %}" alt="add" height="18px" width="18px">
+        </button>
+    </div>
+    <div class="tabs tabs-box p-1 shadow-none border-none w-fit" id="tabs">
+        <input id="report-tab" type="radio" name="my_tabs_1" class="tab w-24" aria-label="Report" />
+        <input id="board-tab" type="radio" name="my_tabs_1" class="tab w-24" aria-label="Board" checked="checked" />
+        <input id="issues-tab" type="radio" name="my_tabs_1" class="tab w-24" aria-label="Issues" />
+    </div>
+</div>
+<div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Report">
+    Report {{plans.0.name}}
+</div>
+<div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Board">
+    Board {{plans.0.name}}
+</div>
+<div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Issues">
+    Issue {{plans.0.name}}
+</div>
+{%else%}
+    <div class="card gap-2 h-full bg-base-200 shadow-drop shadow-sm grid items-center justify-center p-16">
+        <div class="grid items-center justify-center gap-6">
+            <div class="grid items-center justify-center">
+                <img src="{% static 'img/file-search.svg' %}" alt="add" height="256px" width="256px">
+            </div>
 
-Body
+            <div class="grid items-center justify-center gap-6">
+                <p class="text-xl">
+                    No plan. Create one?
+                </p>
+                
+                <button class="btn bg-base-200 border-neutral border-b-4 w-full p-4 py-6 text-lg" 
+                    type="button"
+                    hx-target="#top-layer" 
+                    hx-swap="innerHTML"
+                    hx-get="/create_plan/" 
+                >
+                    <img src="{% static 'img/add.svg' %}" alt="add" height="18px" width="18px">
+                    <span>New Plan</span>
+                </button>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
 
 {% endblock %}
