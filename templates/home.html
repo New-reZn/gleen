@@ -4,32 +4,37 @@
 
 {% block main %}
 
-{% if not plans is empty %}
+{% if plan %}
 <div class="flex flex-col md:flex-row gap-4 pb-3 px-4 items-center" id="tabs-container">
     <div class="grow flex justify-between items-center">
-        <div class="flex flex-col">
-            <p class="capitalize text-lg">{{plans.0.name}}</p>
-            <p class="capitalize text-sm font-light opacity-30 truncate w-96 break-words">{{plans.0.desc}}</p>
+            <div class="flex flex-col">
+                <p class="capitalize text-lg">{{plan.name}}</p>
+                <p class="capitalize text-sm font-light opacity-30 truncate w-96 break-words">{{plan.desc}}</p>
+            </div>
+            <button class="cursor-pointer p-2 bg-base-200 rounded-lg"
+                type="button"
+                hx-target="#top-layer" 
+                hx-swap="innerHTML"
+                hx-get="/change_plan/" 
+            >
+                <img src="{% static 'img/change.svg' %}" alt="add" height="18px" width="18px">
+            </button>
         </div>
-        <button type="button"  class="cursor-pointer p-2 bg-base-200 rounded-lg">
-            <img src="{% static 'img/change.svg' %}" alt="add" height="18px" width="18px">
-        </button>
+        <div class="tabs tabs-box p-1 shadow-none border-none w-fit" id="tabs">
+            <input id="report-tab" type="radio" name="plan-tabs" class="tab w-24" aria-label="Report" checked />
+            <input id="board-tab" type="radio" name="plan-tabs" class="tab w-24" aria-label="Board" />
+            <input id="issues-tab" type="radio" name="plan-tabs" class="tab w-24" aria-label="Issues" />
+        </div>
     </div>
-    <div class="tabs tabs-box p-1 shadow-none border-none w-fit" id="tabs">
-        <input id="report-tab" type="radio" name="my_tabs_1" class="tab w-24" aria-label="Report" />
-        <input id="board-tab" type="radio" name="my_tabs_1" class="tab w-24" aria-label="Board" checked="checked" />
-        <input id="issues-tab" type="radio" name="my_tabs_1" class="tab w-24" aria-label="Issues" />
+    <div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Report">
+        {% include "home_tabs/report_tab.html" %}
     </div>
-</div>
-<div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Report">
-    Report {{plans.0.name}}
-</div>
-<div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Board">
-    Board {{plans.0.name}}
-</div>
-<div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Issues">
-    Issue {{plans.0.name}}
-</div>
+    <div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Board">
+        {% include "home_tabs/board_tab.html" %}
+    </div>
+    <div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Issues">
+        {% include "home_tabs/issues_tab.html" %}
+    </div>
 {%else%}
     <div class="card gap-2 h-full bg-base-200 shadow-drop shadow-sm grid items-center justify-center p-16">
         <div class="grid items-center justify-center gap-6">

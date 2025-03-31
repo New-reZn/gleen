@@ -1,0 +1,105 @@
+{% extends "component/base_popup.html" %}
+
+{% load static %}
+
+{% block dialog %}
+<div class="w-96 md:w-[48rem]">
+    <div class="flex p-1 pl-3 justify-between items-center border-neutral border-b">
+        <p>
+            Create new issue in 
+            <b class="capitalize"><i>{{ plan }}</i></b>
+        </p>
+        <form method="dialog">
+            <button type="submit" class="bg-base-200 group m-1 p-1 rounded-full hover:brightness-200 cursor-pointer">
+                <img src="{% static 'img/cross.svg' %}" class="group-hover:brightness-50" alt="" height="20px" width="20px">
+            </button>
+        </form>
+    </div>
+    <form action="/create_issue/" method="post" enctype="multipart/form-data"  class="">
+        {% csrf_token %}
+        <div class="flex border-b border-neutral flex-col md:flex-row">
+            <div class="flex flex-col md:border-r md:border-neutral p-3 md:w-60 gap-2">
+                
+                <div class="w-full grid gap-2">
+                    <p>Assignees</p>
+                    {% if assignees %}
+                        <div class="grid gap-2 relative">
+                            <label for="show-assignees" class="btn peer justify-start border border-neutral border-b-4">
+                                <img src="{% static 'img/users.svg' %}" alt="add assignees button" height="18px" width="18px">
+                                <p>Add Assignees</p>
+                            </label>
+                            <input type="checkbox" id="show-assignees" class="hidden peer">
+                            <dialog open class="top-full translate-y-1 p-2 w-full shadow shadow-drop rounded-box border border-neutral absolute bg-base-200 hidden peer-checked:grid z-50 max-h-80 overflow-y-auto">
+                                {% for assignee in assignees %}
+                                    {{assignee.username}}
+                                {% endfor %}
+                            </dialog>
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-neutral">Please create assignees for you organisation</p>
+                    {% endif %}
+                </div>
+
+                <div class="w-full grid gap-2">
+                    <p>Types</p>
+                    {% if types %}
+                        <div class="grid gap-2 relative">
+                            <label for="show-types" class="btn peer justify-start border border-neutral border-b-4">
+                                <img src="{% static 'img/tag.svg' %}" alt="add type" height="18px" width="18px">
+                                <p>Add Type</p>
+                            </label>
+                            <input type="checkbox" id="show-types" class="hidden peer">
+                            <dialog open class="top-full translate-y-1 p-2 w-full shadow shadow-drop rounded-box border border-neutral absolute bg-base-200 hidden peer-checked:grid z-40 max-h-72 overflow-y-auto">
+                                {% for type in types %}
+                                    {{type.name}}
+                                {% endfor %}
+                            </dialog>
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-neutral">Please create issue type for this plan.</p>
+                    {% endif %}
+
+                </div>
+            </div>
+            <div class="p-3 w-full grid gap-2">
+                <div class="grid gap-1">
+                    <label for="issue-creation-title" class="translate-x-1">Title</label>
+                    <input type="text" id="issue-creation-title" name="title" class="input w-full"/>
+                </div>
+                <div class="grid gap-1">
+                    <label for="issue-creation-desc" class="translate-x-1">Description</label>
+                    <textarea name="desc" id="issue-creation-desc" class="w-full min-h-72 textarea border-neutral text-base align-text-top p-2 px-3 resize-none outline-none min-w-full"></textarea>
+                </div>
+                <div>
+                    <label for="issue-creation-file" class="btn border border-neutral bg-drop font-light text-sm flex w-fit items-center gap-1">
+                        <img src="{% static 'img/attach_file.svg' %}" alt="attach files button" height="18px" width="18px">
+                        <p>Attach files here</p>
+                    </label>
+                    <input type="file" id="issue-creation-file" name="files" multiple  class="hidden">
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center justify-between p-3">
+            <div class="relative">
+                {% if priorities %}
+                    <label for="show-priorities" class="btn border border-neutral bg-base-300 font-light text-sm flex w-fit items-center gap-1 peer">
+                        <img src="{% static 'img/priority.svg' %}" height="20px" width="20px" alt="priority button">
+                        <p>Priority</p>
+                    </label>
+                    <input type="checkbox" id="show-priorities" class="hidden peer"/>
+                    <dialog open class="bottom-full -translate-y-2 p-2 w-60 shadow shadow-drop rounded-box border border-neutral absolute bg-base-200 hidden peer-checked:grid z-40 max-h-72 overflow-y-auto">
+                        {% for priority in priorities %}
+                            {{priority.name}}
+                        {% endfor %}
+                    </dialog>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-success text-white border-success-content font-normal gap-1" >
+                <img src="{% static 'img/save.svg' %}" height="20px" width="20px" alt="priority button">
+                <p>Create</p>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

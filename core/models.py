@@ -16,7 +16,7 @@ class User(AbstractUser):
 class Plan(models.Model):
     creator=models.ForeignKey("core.User", verbose_name="creator", on_delete=models.CASCADE,related_name="created_plans")
     
-    name = models.CharField(max_length=100,null=False)
+    name = models.CharField(max_length=100,null=False,unique=True)
     desc = models.TextField(null=False)
     
     created_on=models.DateTimeField(auto_now_add=True)
@@ -46,7 +46,7 @@ class Issues(models.Model):
     status = models.ForeignKey('core.Status', on_delete=models.CASCADE)
     type = models.ForeignKey('core.Types', on_delete=models.CASCADE)
     
-    name = models.CharField(max_length=100,null=False) 
+    name = models.CharField(max_length=100,null=False,unique=True) 
     desc = models.TextField(null=False)
     
     created_on=models.DateTimeField(auto_now_add=True)
@@ -110,9 +110,9 @@ class Issues(models.Model):
 
 class Priority(models.Model):
     creator=models.ForeignKey("core.User", verbose_name="creator", on_delete=models.CASCADE,related_name="created_priority")
-    plan=models.ForeignKey("core.Plan", verbose_name="plan", on_delete=models.CASCADE)
+    plan=models.ManyToManyField("core.Plan", verbose_name="plan")
     
-    name= models.CharField(max_length=100,null=False)
+    name = models.CharField(max_length=100,null=False,unique=True)
     color = models.CharField(max_length=10,null=False) 
     desc = models.TextField(null=False)
 
@@ -124,9 +124,9 @@ class Priority(models.Model):
 
 class Status(models.Model):
     creator=models.ForeignKey("core.User", verbose_name="creator", on_delete=models.CASCADE,related_name="created_status")
-    plan=models.ForeignKey("core.Plan", verbose_name="plan", on_delete=models.CASCADE)
+    plan=models.ManyToManyField("core.Plan", verbose_name="plan")
     
-    name= models.CharField(max_length=100,null=False)
+    name = models.CharField(max_length=100,null=False,unique=True)
     color = models.CharField(max_length=10,null=False) 
     desc = models.TextField(null=False)
 
@@ -139,9 +139,9 @@ class Status(models.Model):
     
 class Types(models.Model):
     creator=models.ForeignKey("core.User", verbose_name="creator", on_delete=models.CASCADE,related_name="created_type")
-    plan=models.ForeignKey("core.Plan", verbose_name="plan", on_delete=models.CASCADE)
+    plan=models.ManyToManyField("core.Plan", verbose_name="plan")
     
-    name= models.CharField(max_length=100,null=False)
+    name = models.CharField(max_length=100,null=False,unique=True)
     color = models.CharField(max_length=10,null=False) 
     desc = models.TextField(null=False)
 

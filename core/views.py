@@ -5,20 +5,43 @@ from gleen.helpers import gleen_authenticate,admin_privilege
 from django.contrib.auth import authenticate, login, logout
 from core.models import *
 from core.groups import *
+from django.conf import settings
 
 # Create your views here.
 
 @gleen_authenticate
 def index(request):
+    cookies_current_plan=request.COOKIES.get("current_plan")
+    
     config=GlobalSettings.objects.first()
     
-    print(Plan.objects.all())
+    if Plan.objects.all().count()==0:
+        data={
+            "config":config,
+            "title":f"{config.name}",
+            "icon":f"{config.image.url}",
+            "plan":None
+        }
+        
+        return render(request,"home.html",data)
+    
+    if cookies_current_plan != None:
+        current_plan=Plan.objects.get(id=cookies_current_plan)
+    else:
+        current_plan=Plan.objects.latest('updated_on')
+    
+    issues=current_plan.issues_set.all()
+    mappings=current_plan.chartobject_set.all()
+    status=current_plan.status_set.all()
     
     data={
         "config":config,
         "title":f"{config.name}",
         "icon":f"{config.image.url}",
-        "plans":Plan.objects.all(),
+        "plan":current_plan,
+        "issues":issues,
+        "chartData":mappings,
+        "status":status
     }
     
     return render(request,"home.html",data)
@@ -62,6 +85,249 @@ def create_plan(request):
         name = request.POST['plan_name']
         desc = request.POST['plan_desc']
         
-        Plan.objects.create(creator=request.user,name=name,desc=desc).save()
+        plan=Plan.objects.create(creator=request.user,name=name,desc=desc)
+        plan.save()
         
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+        #todo:create default priorities ,status and types for plans , using get_or_create
+        
+        priorities_data=[
+            {
+                "creator":request.user,
+                "name":"Critical",
+                "color":"#FF0000",
+                "desc":"Needs Critical evaluation"
+            },
+            {
+                "creator":request.user,
+                "name":"High",
+                "color":"#FF7A00",
+                "desc":"Major functionality broken"
+            },
+            {
+                "creator":request.user,
+                "name":"Medium",
+                "color":"#FFD600",
+                "desc":"Important but not blocking"
+            },
+            {
+                "creator":request.user,
+                "name":"Low",
+                "color":"#9EFF00",
+                "desc":"Minor issue"
+            },
+            {
+                "creator":request.user,
+                "name":"Lowest",
+                "color":"#24FF00",
+                "desc":"Nice to have"
+            },
+        ]
+        
+        status_data=[
+            {
+                "creator":request.user,
+                "name":"Todo",
+                "color":"#3fb950",
+                "desc":"This item hasn't been started"
+            },
+            {
+                "creator":request.user,
+                "name":"In Progress",
+                "color":"#d29922",
+                "desc":"This is actively being worked on"
+            },
+            {
+                "creator":request.user,
+                "name":"Done",
+                "color":"#ab7df8",
+                "desc":"This has been completed"
+            },
+        ]
+        
+        types_data=[
+            {
+                "creator":request.user,
+                "name":"bug",
+                "color":"#d73a4a",
+                "desc":"Something isn't working"
+            },
+            {
+                "creator":request.user,
+                "name":"documentation",
+                "color":"#0075ca",
+                "desc":"Improvements or additions to documentation"
+            },
+            {
+                "creator":request.user,
+                "name":"enhancement",
+                "color":"#a2eeef",
+                "desc":"New feature or request"
+            },
+            {
+                "creator":request.user,
+                "name":"help wanted",
+                "color":"#008672",
+                "desc":"Extra attention is needed"
+            },
+            {
+                "creator":request.user,
+                "name":"invalid",
+                "color":"#e4e669",
+                "desc":"This doesn't seem right"
+            },
+            {
+                "creator":request.user,
+                "name":"question",
+                "color":"#d876e3",
+                "desc":"Further information is requested"
+            },
+        ]
+        
+        priorities_name=set()
+        status_name=set()
+        types_name=set()    
+        
+        for priority in priorities_data:
+            priorities_name.add(priority["name"])
+            
+        for status in status_data:
+            status_name.add(status["name"])
+            
+        for type in types_data:
+            types_name.add(type["name"])
+            
+        existing_priorities=Priority.objects.filter(name__in=priorities_name)
+        existing_priorities_names = set(priority.name for priority in existing_priorities)
+        
+        existing_status=Status.objects.filter(name__in=status_name)
+        existing_status_names = set(status.name for status in existing_status)
+        
+        existing_types=Types.objects.filter(name__in=types_name)
+        existing_types_names = set(type.name for type in existing_types)
+        
+        new_priorities_names=priorities_name-existing_priorities_names
+        new_status_names=status_name-existing_status_names
+        new_types_names=types_name-existing_types_names
+        
+        if len(new_priorities_names)>0 and len(new_status_names)>0 and len(new_types_names)>0:
+            new_priorities_data = [priority for priority in priorities_data if priority["name"] in new_priorities_names]
+            new_status_data = [status for status in status_data if status["name"] in new_status_names]
+            new_types_data = [type for type in types_data if type["name"] in new_types_names]
+        
+            priorities_objects = [
+                Status(
+                    creator=priority["creator"],
+                    name=priority["name"],
+                    color=priority["color"],
+                    desc=priority["desc"]
+                )
+                for priority in new_priorities_data
+            ]
+            
+            status_objects = [
+                Status(
+                    creator=status["creator"],
+                    name=status["name"],
+                    color=status["color"],
+                    desc=status["desc"]
+                )
+                for status in new_status_data
+            ]
+            
+            type_objects = [
+                Status(
+                    creator=type["creator"],
+                    name=type["name"],
+                    color=type["color"],
+                    desc=type["desc"]
+                )
+                for type in new_types_data
+            ]
+            
+            Priority.objects.bulk_create(priorities_objects)
+            Status.objects.bulk_create(status_objects)
+            Types.objects.bulk_create(type_objects)
+            
+            for priority_object in priorities_objects:
+                priority_object.plan.add(plan)
+                
+            for status_object in status_objects:
+                status_object.plan.add(plan)
+                
+            for type_object in type_objects:
+                type_object.plan.add(plan)
+            
+        if existing_priorities.count()>0:
+            for existing_priority in existing_priorities:
+                existing_priority.plan.add(plan)
+                existing_priority.save()
+        
+        if existing_status.count()>0:
+            for existing_status in existing_status:
+                existing_status.plan.add(plan)
+                existing_status.save()
+                
+        if existing_types.count()>0:
+            for existing_type in existing_types:
+                existing_type.plan.add(plan)
+                existing_type.save()
+        
+        response=redirect(request.META.get('HTTP_REFERER', '/'))
+        
+        response.set_cookie(
+            key='current_plan',
+            value=plan.id,
+            max_age=2592000,       
+            secure=settings.DEBUG,      
+            httponly=True,     
+            samesite='Lax'   
+        )
+        
+        return response
+    
+def change_plan(request):
+    if request.method=="GET" and request.htmx:
+        data={
+            "plans":Plan.objects.all(),
+        }
+        return render(request,"component/change_plan.html",data)
+    elif request.method=="POST":
+        plan_id = request.POST['plan_id']    
+        
+        plan=Plan.objects.get(id=plan_id)
+        
+        response=redirect(request.META.get('HTTP_REFERER', '/'))
+        
+        response.set_cookie(
+            key='current_plan',
+            value=plan.id,
+            max_age=2592000,      
+            secure=settings.DEBUG,        
+            httponly=True,     
+            samesite='Lax'   
+        )
+        
+        return response
+    
+@admin_privilege
+def create_issue(request):
+    if request.method=="GET" and request.htmx:
+        cookies_current_plan=request.COOKIES.get("current_plan")
+        if cookies_current_plan != None:
+            current_plan=Plan.objects.get(id=cookies_current_plan)
+        else:
+            current_plan=Plan.objects.latest('updated_on')
+        
+        data={
+            "plan":current_plan,
+            "assignees":User.objects.all(),
+            "types":current_plan.types_set.all(),
+            "priorities":current_plan.priority_set.all(),
+            "status":current_plan.status_set.all(),      
+        }
+        
+        return render(request,"component/create_issue.html",data)
+    elif request.method=="POST":
+        
+        return HttpResponse("noo")
+    

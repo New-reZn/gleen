@@ -1,0 +1,55 @@
+{% extends "component/base_popup.html" %}
+
+{% load static %}
+
+{% block dialog %}
+<div class="p-4 w-96 md:w-[48rem] pt-3">
+    <div class="flex items-start justify-between">
+        <div class="">
+            <p class="text-lg">Plans</p>
+            {% if request.user.is_admin %}
+                <p class="text-sm opacity-50">Choose or create a plan here</p>
+            {% else %}
+                <p class="text-sm opacity-50">Choose a plan here</p>
+            {% endif %}
+        </div>
+        <form method="dialog">
+            <button type="submit" class="bg-base-200 group m-1 p-1 rounded-full hover:brightness-200 cursor-pointer">
+                <img src="{% static 'img/cross.svg' %}" class="group-hover:brightness-50" alt="" height="20px" width="20px">
+            </button>
+        </form>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 pt-4 gap-2 w-full">
+        {% for plan in plans %}
+            <form action="/change_plan/" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                <button  class="card gap-1 capitalize bg-base-200 border border-neutral cursor-pointer shadow shadow-drop p-4 py-2 items-start w-full" type="submit">
+                    <div class="flex justify-between items-center w-full">
+                        <p>{{ plan.name }}</p>
+                        <div class="bg-base-300 rounded-md p-1 py-0.5 text-xs truncate overflow-hidden max-w-16" title="issues">{{  plan.issues_set.count }}</div>
+                    </div>
+                    <p class="text-sm">{{ plan.desc }}</p>
+                    <p class="text-xs opacity-50">{{ plan.updated_on }}</p>
+                </button>
+            </form>
+        
+        {% endfor %}
+        {% if request.user.is_admin %}
+            <button  class="card gap-1 capitalize bg-base-200 border border-neutral cursor-pointer border-b-8 p-4 items-start"
+                type="submit"
+                hx-target="#top-layer" 
+                hx-swap="innerHTML"
+                hx-get="/create_plan/" 
+            >
+                <div class="flex gap-1">
+                    <img src="{% static 'img/add.svg' %}" alt="" srcset="">
+                    <p>create new plan</p>
+                </div>
+                <p class="text-sm">create new plan to assign task</p>
+            </button>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
