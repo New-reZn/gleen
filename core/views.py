@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from setup.models import GlobalSettings
-from gleen.helpers import gleen_authenticate,admin_privilege
+from gleen.helpers import gleen_authenticate,admin_privilege,get_object_or_none
 from django.contrib.auth import authenticate, login, logout
 from core.models import *
 from core.groups import *
@@ -329,5 +329,68 @@ def create_issue(request):
         return render(request,"component/create_issue.html",data)
     elif request.method=="POST":
         
-        return HttpResponse("noo")
-    
+        assignees_input=request.POST.getlist('assignees')
+        
+        type_input=request.POST.get('type')
+        
+        title_input=request.POST.get('title')
+        
+        desc_input=request.POST.get('desc')
+        
+        files_input=request.FILES.getlist('files')
+        
+        priority_input=request.POST.get('priority')
+        
+        cookies_current_plan=request.COOKIES.get("current_plan")
+        
+        if cookies_current_plan != None:
+            current_plan=Plan.objects.get(id=cookies_current_plan)
+        else:
+            return HttpResponse("The issue did not had a plan")
+
+        default_status=get_object_or_none(Status,name="Todo")
+        
+        default_priority=get_object_or_none(Priority,name=priority_input)
+        
+        default_type=get_object_or_none(Types,name=type_input)
+        
+        issue = Issues(
+            creator=request.user,
+            plan=current_plan,
+            name=title_input,
+            desc=desc_input
+        )
+        
+        for assingee_id in assignees_input:
+            assingee=User.objects.get(id=assingee_id)
+            issue.assignees.add(assingee)
+            
+        
+        if default_status:
+            issue.status=default_status
+        else:
+            status=current_plan.status_set.all().order_by('created_on').first()
+            issue.status=status
+        
+        if default_priority:
+            issue.priority=default_priority
+        
+        if default_type:
+            issue.type=default_type
+            
+        issue.save()
+        
+        comment=Comment.objects.create(
+            creator=request.user,
+            issue=issue,
+            comment=desc_input,
+        )
+        
+        for fileObject in files_input:
+            Files.objects.create(
+                comment=comment,
+                upload=fileObject
+            )
+        
+        return redirect("/") 
+    return redirect("/") 

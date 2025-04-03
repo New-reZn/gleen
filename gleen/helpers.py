@@ -1,9 +1,16 @@
 from setup.models import GlobalSettings
 from django.shortcuts import redirect,HttpResponse
+from django.shortcuts import _get_queryset
 import re
 import unicodedata
 import uuid
 
+def get_object_or_none(Class, *args, **kwargs):
+    queryset = _get_queryset(Class)
+    try:
+        return queryset.get(*args, **kwargs)
+    except queryset.model.DoesNotExist:
+        return None
 
 def sanitize_filename(filename):
     filename = unicodedata.normalize('NFKD', filename).encode('ascii', 'ignore').decode('ascii')

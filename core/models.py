@@ -42,9 +42,9 @@ class Issues(models.Model):
     
     assignees = models.ManyToManyField("core.User",verbose_name="assignees",related_name="assigned_to")
     
-    priority = models.ForeignKey('core.Priority', on_delete=models.CASCADE)
+    priority = models.ForeignKey('core.Priority', on_delete=models.CASCADE,null=True)
     status = models.ForeignKey('core.Status', on_delete=models.CASCADE)
-    type = models.ForeignKey('core.Types', on_delete=models.CASCADE)
+    type = models.ForeignKey('core.Types', on_delete=models.CASCADE,null=True)
     
     name = models.CharField(max_length=100,null=False,unique=True) 
     desc = models.TextField(null=False)

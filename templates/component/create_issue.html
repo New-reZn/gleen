@@ -18,7 +18,7 @@
     <form action="/create_issue/" method="post" enctype="multipart/form-data"  class="">
         {% csrf_token %}
         <div class="flex border-b border-neutral flex-col md:flex-row">
-            <div class="flex flex-col md:border-r md:border-neutral p-3 md:w-60 gap-2">
+            <div class="flex flex-col md:border-r md:border-neutral p-3 md:w-72 gap-2">
                 
                 <div class="w-full grid gap-2">
                     <p>Assignees</p>
@@ -30,10 +30,52 @@
                             </label>
                             <input type="checkbox" id="show-assignees" class="hidden peer">
                             <dialog open class="top-full translate-y-1 p-2 w-full shadow shadow-drop rounded-box border border-neutral absolute bg-base-200 hidden peer-checked:grid z-50 max-h-80 overflow-y-auto">
-                                {% for assignee in assignees %}
-                                    {{assignee.username}}
-                                {% endfor %}
+                                <label class="input mb-2">
+                                    <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <path d="m21 21-4.3-4.3"></path>
+                                        </g>
+                                    </svg>
+                                    <input id="search_assignee" type="search" class="grow" placeholder="Search" />
+                                </label>
+                               <div class="flex flex-col w-full overflow-hidden" id="assignees">
+                                   {% for assignee in assignees %}
+                                    
+                                   
+                                   {% if user.id != assignee.id %}
+
+                                    <div class="flex p-2 rounded-xl hover:bg-[#444] gap-2 items-center w-full overflow-hidden assignees">
+                                        <input type="checkbox" name="assignees" id="assignee-{{assignee.id}}" value="{{assignee.id}}">
+                                        <label class="flex gap-2 items-center w-full overflow-hidden" for="assignee-{{assignee.id}}">
+                                            <div class="avatar w-4 h-4">
+                                                <div class="w-24 rounded-full">
+                                                    <img src="{{assignee.image.url}}" alt="profile picture" />
+                                                </div>
+                                            </div>
+                                            <p class="truncate w-full overflow-hidden capitalize">{{assignee.username}}</p>
+                                        </label>
+                                    </div>
+                                    
+                                   {% endif %}
+                                   
+                                    {% endfor %}
+                               </div>
+
                             </dialog>
+                        </div>
+
+                        <div class="flex flex-col gap-2 w-full overflow-hidden">
+                            {% for assignee in assignees %}
+                                <div class="hidden p-2 rounded-xl hover:bg-[#444] gap-2 items-center w-full overflow-hidden assignees-shown">
+                                    <div class="avatar w-4 h-4">
+                                        <div class="w-24 rounded-full">
+                                            <img src="{{assignee.image.url}}" alt="profile picture" />
+                                        </div>
+                                    </div>
+                                    <p class="truncate w-full overflow-hidden capitalize">{{assignee.username}}</p>
+                                </div>
+                            {% endfor %}
                         </div>
                     {% else %}
                         <p class="text-sm text-neutral">Please create assignees for you organisation</p>
@@ -41,18 +83,40 @@
                 </div>
 
                 <div class="w-full grid gap-2">
-                    <p>Types</p>
+                    <p>Type</p>
                     {% if types %}
                         <div class="grid gap-2 relative">
                             <label for="show-types" class="btn peer justify-start border border-neutral border-b-4">
-                                <img src="{% static 'img/tag.svg' %}" alt="add type" height="18px" width="18px">
-                                <p>Add Type</p>
+                                <div class="flex gap-1" id="m-type">
+                                    <img src="{% static 'img/tag.svg' %}" alt="add type" height="18px" width="18px">
+                                    <p>Add Type</p>
+                                </div>
+                                <div class="hidden capitalize items-center gap-2" id="type">
+                                    <div class="rounded-full h-4 w-4"></div>
+                                    <p></p>
+                                </div>
                             </label>
                             <input type="checkbox" id="show-types" class="hidden peer">
                             <dialog open class="top-full translate-y-1 p-2 w-full shadow shadow-drop rounded-box border border-neutral absolute bg-base-200 hidden peer-checked:grid z-40 max-h-72 overflow-y-auto">
-                                {% for type in types %}
-                                    {{type.name}}
-                                {% endfor %}
+
+                                <div class="flex flex-col w-full overflow-hidden">
+                                    {% for type in types %}
+                                    
+                                    <div class="flex p-1 gap-2 items-center w-full overflow-hidden">
+                                        <input type="radio" name="type" id="type-name-{{ type.id }}" value="{{ type.name }}" >
+                                        <input type="hidden" class="type-color" value="{{ type.color }}" >
+                                        
+                                        <label for="type-name-{{ type.id }}" class="flex gap-2 items-center w-full overflow-hidden">
+                                            <div class="rounded-full h-4 w-4.5" style="background-color: {{ type.color }};"></div>
+                                            <p class="capitalize w-full overflow-hidden truncate">
+                                                {{type.name}}
+                                            </p>
+                                        </label>
+                                    </div>    
+                                    
+                                    {% endfor %}
+                                </div>
+
                             </dialog>
                         </div>
                     {% else %}
@@ -64,13 +128,15 @@
             <div class="p-3 w-full grid gap-2">
                 <div class="grid gap-1">
                     <label for="issue-creation-title" class="translate-x-1">Title</label>
-                    <input type="text" id="issue-creation-title" name="title" class="input w-full"/>
+                    <input type="text" id="issue-creation-title" required name="title" class="input w-full"/>
                 </div>
                 <div class="grid gap-1">
                     <label for="issue-creation-desc" class="translate-x-1">Description</label>
-                    <textarea name="desc" id="issue-creation-desc" class="w-full min-h-72 textarea border-neutral text-base align-text-top p-2 px-3 resize-none outline-none min-w-full"></textarea>
+                    <textarea required name="desc" id="issue-creation-desc" class="w-full min-h-72 textarea border-neutral text-base align-text-top p-2 px-3 resize-none outline-none min-w-full"></textarea>
                 </div>
                 <div>
+                    <div class="flex flex-col md:flex-row gap-1 px-0 pb-2 max-w-96 flex-wrap" id="file-container"> </div>
+
                     <label for="issue-creation-file" class="btn border border-neutral bg-drop font-light text-sm flex w-fit items-center gap-1">
                         <img src="{% static 'img/attach_file.svg' %}" alt="attach files button" height="18px" width="18px">
                         <p>Attach files here</p>
@@ -82,15 +148,32 @@
         <div class="flex items-center justify-between p-3">
             <div class="relative">
                 {% if priorities %}
-                    <label for="show-priorities" class="btn border border-neutral bg-base-300 font-light text-sm flex w-fit items-center gap-1 peer">
-                        <img src="{% static 'img/priority.svg' %}" height="20px" width="20px" alt="priority button">
-                        <p>Priority</p>
+                    <label for="show-priorities" class="btn border border-neutral bg-base-300 font-light text-sm w-fit peer" >
+                        <div id="m-priority" class="flex gap-1 items-center">
+                            <img src="{% static 'img/priority.svg' %}" height="20px" width="20px" alt="priority button">
+                            <p>Priority</p>
+                        </div>
+                        <p class="hidden" id="priority"></p>
                     </label>
                     <input type="checkbox" id="show-priorities" class="hidden peer"/>
                     <dialog open class="bottom-full -translate-y-2 p-2 w-60 shadow shadow-drop rounded-box border border-neutral absolute bg-base-200 hidden peer-checked:grid z-40 max-h-72 overflow-y-auto">
-                        {% for priority in priorities %}
-                            {{priority.name}}
-                        {% endfor %}
+
+                        <div class="flex flex-col gap-1">
+                            {% for priority in priorities %}
+                            
+                            <div class="flex p-1 px-2 gap-2 items-center rounded-xl">
+                                <input type="radio" class="w-4 h-4" style="accent-color: {{priority.color}};" name="priority" id="priority-name-{{ priority.name }}" value="{{ priority.name }}" >
+                                <input type="hidden" class="priority-color" value="{{priority.color}}">
+                                <label class="flex w-full" for="priority-name-{{ priority.name }}">
+                                    <p style="color: {{priority.color}};" class="w-full">
+                                        {{priority.name}}
+                                    </p>
+                                </label>
+                            </div> 
+                            
+                            {% endfor %}
+                        </div>
+
                     </dialog>
                 {% endif %}
             </div>
@@ -102,4 +185,122 @@
         </div>
     </form>
 </div>
+
+<script>
+    const dialog_assignees_input=document.querySelectorAll('.assignees input[type="checkbox"]');
+    const dialog_assignees=document.querySelectorAll('.assignees');
+    const assignees=document.querySelectorAll('.assignees-shown');
+
+    const search_assignee=document.querySelector("#search_assignee")
+    search_assignee.addEventListener("input",(event)=>{
+        if(event.target.value){
+            dialog_assignees_input.forEach((input,index)=>{
+                const searchRgex=new RegExp(`^.*${event.target.value}.*$`);
+                if(searchRgex.test(input.value)){
+                    dialog_assignees[index].classList.add("flex");
+                    dialog_assignees[index].classList.remove("hidden");   
+                }else{
+                    dialog_assignees[index].classList.add("hidden");
+                    dialog_assignees[index].classList.remove("flex");
+                }
+            })
+        }else{
+            dialog_assignees_input.forEach((input,index)=>{
+                dialog_assignees[index].classList.add("flex");
+                dialog_assignees[index].classList.remove("hidden");
+            })
+        }
+    })
+
+    dialog_assignees_input.forEach((input,i)=>{
+        input.addEventListener("change",(event)=>{
+            if (event.target.checked) {
+                assignees[i].classList.add("flex");
+                assignees[i].classList.remove("hidden");
+            } else {
+                assignees[i].classList.add("hidden");
+                assignees[i].classList.remove("flex");
+            }
+        })
+    })
+
+    const types = document.getElementsByName('type');
+    const type = document.querySelector('#type');
+    const mType = document.querySelector('#m-type');
+    const typeColors =document.querySelectorAll(".type-color");
+
+    types.forEach((radio,i)=>{
+        radio.addEventListener("input",()=>{
+            if (radio.checked) {
+                const color=typeColors[i].value;
+                console.log(color);
+
+                mType.classList.add("hidden");
+                mType.classList.remove("flex");
+                type.classList.add("flex");
+                type.classList.remove("hidden");
+                
+                type.children[0].style=`background-color:${color}`;
+                type.children[1].innerText=radio.value;
+    
+            }else{
+                mType.classList.add("flex");
+                mType.classList.remove("hidden");
+                type.classList.add("hidden");   
+                type.classList.remove("flex");
+            }
+        })
+    })
+
+    const fileInput=document.querySelector("#issue-creation-file");
+    const fileContainer=document.querySelector("#file-container");
+    
+    fileInput.addEventListener('change', () => {
+        const files = fileInput.files;
+        fileContainer.innerHTML=``
+        if (files.length > 0) {       
+            for(let i=0 ; i< files.length ; i++){
+                const fileTemplate=`
+                    <div class="btn border border-neutral bg-base-300 font-light text-sm flex w-fit items-center gap-1">
+                        <img src="{% static 'img/save.svg' %}" alt="${files[i].name}">
+                        <p>${files[i].name}</p>
+                    </div>
+                `;
+                fileContainer.innerHTML=fileContainer.innerHTML+fileTemplate;
+            }
+        } else {
+            fileContainer.innerHTML=``;
+        }
+    });
+    
+    const priority = document.querySelector('#priority');
+    const mpriority = document.querySelector('#m-priority');
+    const priorities = document.getElementsByName('priority');
+    const prioritiesColors =document.querySelectorAll(".priority-color");
+
+    priorities.forEach((radio,i)=>{
+        radio.addEventListener("change",()=>{
+            if (radio.checked) {
+                const color=prioritiesColors[i].value;
+                console.log(color);
+
+                mpriority.classList.add("hidden");
+                mpriority.classList.remove("flex");
+                priority.classList.add("flex");
+                priority.classList.remove("hidden");
+                
+                priority.innerHTML=radio.value;
+                priority.style=`color:${color}`;
+    
+            }else{
+                mpriority.classList.add("flex");
+                mpriority.classList.remove("hidden");
+                priority.classList.add("hidden");   
+                priority.classList.remove("flex");
+            }
+        })
+    })
+
+</script>
+
 {% endblock %}

@@ -10,6 +10,7 @@ media/admins/*
 media/global/*
 media/devs/*
 media/reps/*
+media/files/*
 !media/global/logo.svg
 !media/**/user.svg
 *.sqlite3
