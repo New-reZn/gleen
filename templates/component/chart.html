@@ -1,0 +1,17 @@
+{% load static %}
+{{ chartdate|json_script:"labels-data" }}
+{{ chartdata|json_script:"dataset-data" }}
+
+<style>
+
+
+</style>
+
+
+<div class="flex items-center justify-center overflow-x-auto w-full">
+    <div class="flex items-center justify-center overflow-x-auto" id="chart-container">
+        <canvas id="chart" width="1280" style="position: relative; width: 1280px;" ></canvas>
+    </div>
+</div>
+
+<script src="{% static 'js/graph.js' %}" defer></script>

@@ -1,3 +1,4 @@
+from collections import defaultdict
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from setup.models import GlobalSettings
@@ -6,6 +7,9 @@ from django.contrib.auth import authenticate, login, logout
 from core.models import *
 from core.groups import *
 from django.conf import settings
+from django.db.models import Count
+from datetime import timedelta
+import datetime
 
 # Create your views here.
 
@@ -31,8 +35,42 @@ def index(request):
         current_plan=Plan.objects.latest('updated_on')
     
     issues=current_plan.issues_set.all()
-    mappings=current_plan.chartobject_set.all()
+    ChartObjects=current_plan.chartobject_set.all()
+    
     status=current_plan.status_set.all()
+    
+    mappings = {s.name: [] for s in status}
+    
+    end_date = datetime.date.today()  
+    start_date = end_date - timedelta(days=30)
+   
+    daily_data = (
+        ChartObjects
+        .filter(created_on__date__range=(start_date, end_date))
+        .values_list('created_on__date', 'status__name')
+        .annotate(count=Count('id'))
+        .order_by('created_on__date')
+    )
+    
+    days = (end_date - start_date).days + 1
+    date_mapping=[]
+    current_counts = defaultdict(int)
+    skip_day=1
+    
+    # 4. Process each day in order
+    for day_offset in range(0,days,skip_day+1):
+        
+        current_date = start_date + timedelta(days=day_offset)
+        date_mapping.append(current_date.strftime("%b %d"))
+        
+        date_counts = defaultdict(int)
+        for entry in daily_data:
+            if entry['created_on__date'] == current_date:
+                date_counts[entry['status__name']] = entry['count']
+        
+        for i in status:
+            current_counts[i] = date_counts.get(i, current_counts[i])
+            mappings[i.name].append(current_counts[i])
     
     data={
         "config":config,
@@ -40,7 +78,8 @@ def index(request):
         "icon":f"{config.image.url}",
         "plan":current_plan,
         "issues":issues,
-        "chartData":mappings,
+        "chartdata":mappings,
+        "chartdate":date_mapping,
         "status":status
     }
     
@@ -366,11 +405,11 @@ def create_issue(request):
             issue.assignees.add(assingee)
             
         
-        if default_status:
-            issue.status=default_status
-        else:
-            status=current_plan.status_set.all().order_by('created_on').first()
-            issue.status=status
+        if default_status==None:
+            default_status=current_plan.status_set.all().order_by('created_on').first()
+            
+        issue.status=default_status
+        ChartObject.objects.create(plan=current_plan,status=default_status)
         
         if default_priority:
             issue.priority=default_priority
@@ -391,6 +430,165 @@ def create_issue(request):
                 comment=comment,
                 upload=fileObject
             )
+            
         
         return redirect("/") 
     return redirect("/") 
+
+
+def create_chart(request):
+    if not (request.method=="POST" and request.htmx):
+        return HttpResponse("wrong request")
+    
+    cookies_current_plan=request.COOKIES.get("current_plan")
+    
+    if cookies_current_plan != None:
+        current_plan=Plan.objects.get(id=cookies_current_plan)
+    else:
+        return HttpResponse("wrong request")
+        
+    text=request.POST.get("search").strip()
+    time=request.POST.get("time").strip()
+    
+    if text=="":
+        ChartObjects=ChartObject.objects.all()
+    else:
+        ChartObjects=ChartObject.objects.filter(status__name__icontains=text)
+    
+    
+    status=current_plan.status_set.all()
+    
+    mappings = {s.name: [] for s in status}
+    
+    if time=="" or time=="1m":
+        end_date = datetime.date.today()  
+        start_date = end_date - timedelta(days=30)
+    
+        daily_data = (
+            ChartObjects
+            .filter(created_on__date__range=(start_date, end_date))
+            .values_list('created_on__date', 'status__name')
+            .annotate(count=Count('id'))
+            .order_by('created_on__date')
+        )
+        
+        days = (end_date - start_date).days + 1
+        date_mapping=[]
+        current_counts = defaultdict(int)
+        skip_day=1
+        
+        for day_offset in range(0,days,skip_day+1):
+            
+            current_date = start_date + timedelta(days=day_offset)
+            date_mapping.append(current_date.strftime("%b %d"))
+            
+            date_counts = defaultdict(int)
+            for entry in daily_data:
+                if entry['created_on__date'] == current_date:
+                    date_counts[entry['status__name']] = entry['count']
+            
+            for i in status:
+                current_counts[i] = date_counts.get(i, current_counts[i])
+                mappings[i.name].append(current_counts[i])
+
+    elif time=="2w":
+        end_date = datetime.date.today()  
+        start_date = end_date - timedelta(days=14)
+    
+        daily_data = (
+            ChartObjects
+            .filter(created_on__date__range=(start_date, end_date))
+            .values_list('created_on__date', 'status__name')
+            .annotate(count=Count('id'))
+            .order_by('created_on__date')
+        )
+        
+        days = (end_date - start_date).days + 1
+        date_mapping=[]
+        current_counts = defaultdict(int)
+        skip_day=0
+        
+        for day_offset in range(0,days,skip_day+1):
+            
+            current_date = start_date + timedelta(days=day_offset)
+            date_mapping.append(current_date.strftime("%b %d"))
+            
+            date_counts = defaultdict(int)
+            for entry in daily_data:
+                if entry['created_on__date'] == current_date:
+                    date_counts[entry['status__name']] = entry['count']
+            
+            for i in status:
+                current_counts[i] = date_counts.get(i, current_counts[i])
+                mappings[i.name].append(current_counts[i])        
+                
+    elif time=="3m":
+        end_date = datetime.date.today()  
+        start_date = end_date - timedelta(days=90)
+    
+        daily_data = (
+            ChartObjects
+            .filter(created_on__date__range=(start_date, end_date))
+            .values_list('created_on__date', 'status__name')
+            .annotate(count=Count('id'))
+            .order_by('created_on__date')
+        )
+        
+        days = (end_date - start_date).days + 1
+        date_mapping=[]
+        current_counts = defaultdict(int)
+        skip_day=3
+        
+        for day_offset in range(0,days,skip_day+1):
+            
+            current_date = start_date + timedelta(days=day_offset)
+            date_mapping.append(current_date.strftime("%b %d"))
+            
+            date_counts = defaultdict(int)
+            for entry in daily_data:
+                if entry['created_on__date'] == current_date:
+                    date_counts[entry['status__name']] = entry['count']
+            
+            for i in status:
+                current_counts[i] = date_counts.get(i, current_counts[i])
+                mappings[i.name].append(current_counts[i]) 
+                       
+    elif time=="MAX":
+        end_date = datetime.date.today()
+        
+        try:
+            earliest=ChartObject.objects.earliest("created_on")
+            start_date = earliest.created_on
+        except:
+            start_date = end_date - timedelta(days=90)
+        
+        daily_data = (
+            ChartObjects
+            .filter(created_on__date__range=(start_date, end_date))
+            .values_list('created_on__date', 'status__name')
+            .annotate(count=Count('id'))
+            .order_by('created_on__date')
+        )
+        
+        days = (end_date - start_date).days + 1
+        date_mapping=[]
+        current_counts = defaultdict(int)
+        skip_day=3
+        
+        for day_offset in range(0,days,skip_day+1):
+            
+            current_date = start_date + timedelta(days=day_offset)
+            date_mapping.append(current_date.strftime("%b %d"))
+            
+            date_counts = defaultdict(int)
+            for entry in daily_data:
+                if entry['created_on__date'] == current_date:
+                    date_counts[entry['status__name']] = entry['count']
+            
+            for i in status:
+                current_counts[i] = date_counts.get(i, current_counts[i])
+                mappings[i.name].append(current_counts[i])
+    else:
+        return HttpResponse("wrong request")
+    
+    return render(request,"component/chart.html",{"chartdata":mappings,"chartdate":date_mapping})
