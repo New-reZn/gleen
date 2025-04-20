@@ -6,6 +6,7 @@
       "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
+    --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
     --text-xs: 0.75rem;
@@ -1096,6 +1097,20 @@
     flex: none;
     scroll-snap-align: start;
   }
+  .status {
+    display: inline-block;
+    aspect-ratio: 1 / 1;
+    width: calc(0.25rem * 2);
+    height: calc(0.25rem * 2);
+    border-radius: var(--radius-selector);
+    background-color: color-mix(in oklab, var(--color-base-content) 20%, transparent);
+    background-position: center;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+    color: color-mix(in oklab, var(--color-black) 30%, transparent);
+    background-image: radial-gradient( circle at 35% 30%, oklch(1 0 0 / calc(var(--depth) * 0.5)), #0000 );
+    box-shadow: 0 2px 3px -1px color-mix(in oklab, currentColor calc(var(--depth) * 100%), #0000);
+  }
   .tabs {
     display: flex;
     flex-wrap: wrap;
@@ -1173,14 +1188,14 @@
   .max-h-\[90vh\] {
     max-height: 90vh;
   }
-  .max-h-screen {
-    max-height: 100vh;
-  }
   .min-h-6 {
     min-height: calc(var(--spacing) * 6);
   }
   .min-h-72 {
     min-height: calc(var(--spacing) * 72);
+  }
+  .min-h-screen {
+    min-height: 100vh;
   }
   .w-4 {
     width: calc(var(--spacing) * 4);
@@ -1206,9 +1221,6 @@
   .w-\[25px\] {
     width: 25px;
   }
-  .w-\[90rem\] {
-    width: 90rem;
-  }
   .w-fit {
     width: fit-content;
   }
@@ -1223,6 +1235,12 @@
   }
   .max-w-\[90vw\] {
     max-width: 90vw;
+  }
+  .max-w-screen {
+    max-width: 100vw;
+  }
+  .min-w-96 {
+    min-width: calc(var(--spacing) * 96);
   }
   .min-w-full {
     min-width: 100%;
@@ -1263,6 +1281,9 @@
       outline-offset: 2px;
     }
   }
+  .cursor-grab {
+    cursor: grab;
+  }
   .cursor-pointer {
     cursor: pointer;
   }
@@ -1293,11 +1314,17 @@
   .justify-center {
     justify-content: center;
   }
+  .justify-end {
+    justify-content: flex-end;
+  }
   .justify-start {
     justify-content: flex-start;
   }
   .justify-items-center {
     justify-items: center;
+  }
+  .gap-0\.5 {
+    gap: calc(var(--spacing) * 0.5);
   }
   .gap-1 {
     gap: calc(var(--spacing) * 1);
@@ -1319,6 +1346,13 @@
       --tw-space-y-reverse: 0;
       margin-block-start: calc(calc(var(--spacing) * 1.5) * var(--tw-space-y-reverse));
       margin-block-end: calc(calc(var(--spacing) * 1.5) * calc(1 - var(--tw-space-y-reverse)));
+    }
+  }
+  .space-y-2 {
+    :where(& > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
     }
   }
   .space-y-3 {
@@ -1347,6 +1381,9 @@
   }
   .justify-self-center {
     justify-self: center;
+  }
+  .justify-self-start {
+    justify-self: flex-start;
   }
   .truncate {
     overflow: hidden;
@@ -1407,6 +1444,14 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
+  .border-0 {
+    border-style: var(--tw-border-style);
+    border-width: 0px;
+  }
+  .border-2 {
+    border-style: var(--tw-border-style);
+    border-width: 2px;
+  }
   .border-b {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
@@ -1452,6 +1497,9 @@
   }
   .bg-success {
     background-color: var(--color-success);
+  }
+  .bg-transparent {
+    background-color: transparent;
   }
   .p-0 {
     padding: calc(var(--spacing) * 0);
@@ -1504,11 +1552,17 @@
   .py-10 {
     padding-block: calc(var(--spacing) * 10);
   }
+  .pt-0 {
+    padding-top: calc(var(--spacing) * 0);
+  }
   .pt-3 {
     padding-top: calc(var(--spacing) * 3);
   }
   .pt-4 {
     padding-top: calc(var(--spacing) * 4);
+  }
+  .pb-1 {
+    padding-bottom: calc(var(--spacing) * 1);
   }
   .pb-2 {
     padding-bottom: calc(var(--spacing) * 2);
@@ -1612,6 +1666,10 @@
   .shadow-drop {
     --tw-shadow-color: var(--color-drop);
   }
+  .outline-0 {
+    outline-style: var(--tw-outline-style);
+    outline-width: 0px;
+  }
   .btn-ghost {
     &:not(.btn-active, :hover, :active:focus, :focus-visible) {
       --btn-shadow: "";
@@ -1665,12 +1723,25 @@
       }
     }
   }
+  .hover\:bg-neutral {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-neutral);
+      }
+    }
+  }
   .hover\:brightness-200 {
     &:hover {
       @media (hover: hover) {
         --tw-brightness: brightness(200%);
         filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
       }
+    }
+  }
+  .active\:brightness-110 {
+    &:active {
+      --tw-brightness: brightness(110%);
+      filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
     }
   }
   .md\:w-72 {
@@ -1707,6 +1778,11 @@
   .md\:border-neutral {
     @media (width >= 48rem) {
       border-color: var(--color-neutral);
+    }
+  }
+  .lg\:max-h-\[350px\] {
+    @media (width >= 64rem) {
+      max-height: 350px;
     }
   }
 }
@@ -1992,6 +2068,11 @@ html {
   syntax: "*";
   inherits: false;
   initial-value: 0 0 #0000;
+}
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
 }
 @property --tw-blur {
   syntax: "*";

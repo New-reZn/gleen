@@ -26,7 +26,7 @@ function initChart(){
           label: dataset_name,
           data: dataset[dataset_name],
           borderWidth: 2,
-          tension: 0.0
+          tension: 0.1
       }
     )
   }

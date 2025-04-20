@@ -187,119 +187,123 @@
 </div>
 
 <script>
-    const dialog_assignees_input=document.querySelectorAll('.assignees input[type="checkbox"]');
-    const dialog_assignees=document.querySelectorAll('.assignees');
-    const assignees=document.querySelectorAll('.assignees-shown');
+    (function(){
 
-    const search_assignee=document.querySelector("#search_assignee")
-    search_assignee.addEventListener("input",(event)=>{
-        if(event.target.value){
-            dialog_assignees_input.forEach((input,index)=>{
-                const searchRgex=new RegExp(`^.*${event.target.value}.*$`);
-                if(searchRgex.test(input.value)){
+        const dialog_assignees_input=document.querySelectorAll('.assignees input[type="checkbox"]');
+        const dialog_assignees=document.querySelectorAll('.assignees');
+        const assignees=document.querySelectorAll('.assignees-shown');
+    
+        const search_assignee=document.querySelector("#search_assignee")
+        search_assignee.addEventListener("input",(event)=>{
+            if(event.target.value){
+                dialog_assignees_input.forEach((input,index)=>{
+                    const searchRgex=new RegExp(`^.*${event.target.value}.*$`);
+                    if(searchRgex.test(input.value)){
+                        dialog_assignees[index].classList.add("flex");
+                        dialog_assignees[index].classList.remove("hidden");   
+                    }else{
+                        dialog_assignees[index].classList.add("hidden");
+                        dialog_assignees[index].classList.remove("flex");
+                    }
+                })
+            }else{
+                dialog_assignees_input.forEach((input,index)=>{
                     dialog_assignees[index].classList.add("flex");
-                    dialog_assignees[index].classList.remove("hidden");   
-                }else{
-                    dialog_assignees[index].classList.add("hidden");
-                    dialog_assignees[index].classList.remove("flex");
+                    dialog_assignees[index].classList.remove("hidden");
+                })
+            }
+        })
+    
+        dialog_assignees_input.forEach((input,i)=>{
+            input.addEventListener("change",(event)=>{
+                if (event.target.checked) {
+                    assignees[i].classList.add("flex");
+                    assignees[i].classList.remove("hidden");
+                } else {
+                    assignees[i].classList.add("hidden");
+                    assignees[i].classList.remove("flex");
                 }
             })
-        }else{
-            dialog_assignees_input.forEach((input,index)=>{
-                dialog_assignees[index].classList.add("flex");
-                dialog_assignees[index].classList.remove("hidden");
+        })
+    
+        const types = document.getElementsByName('type');
+        const type = document.querySelector('#type');
+        const mType = document.querySelector('#m-type');
+        const typeColors =document.querySelectorAll(".type-color");
+    
+        types.forEach((radio,i)=>{
+            radio.addEventListener("input",()=>{
+                if (radio.checked) {
+                    const color=typeColors[i].value;
+    
+                    mType.classList.add("hidden");
+                    mType.classList.remove("flex");
+                    type.classList.add("flex");
+                    type.classList.remove("hidden");
+                    
+                    type.children[0].style=`background-color:${color}`;
+                    type.children[1].innerText=radio.value;
+        
+                }else{
+                    mType.classList.add("flex");
+                    mType.classList.remove("hidden");
+                    type.classList.add("hidden");   
+                    type.classList.remove("flex");
+                }
             })
-        }
-    })
-
-    dialog_assignees_input.forEach((input,i)=>{
-        input.addEventListener("change",(event)=>{
-            if (event.target.checked) {
-                assignees[i].classList.add("flex");
-                assignees[i].classList.remove("hidden");
+        })
+    
+        const fileInput=document.querySelector("#issue-creation-file");
+        const fileContainer=document.querySelector("#file-container");
+        
+        fileInput.addEventListener('change', () => {
+            const files = fileInput.files;
+            fileContainer.innerHTML=``
+            if (files.length > 0) {       
+                for(let i=0 ; i< files.length ; i++){
+                    const fileTemplate=`
+                        <div class="btn border border-neutral bg-base-300 font-light text-sm flex w-fit items-center gap-1">
+                            <img src="{% static 'img/save.svg' %}" alt="${files[i].name}">
+                            <p>${files[i].name}</p>
+                        </div>
+                    `;
+                    fileContainer.innerHTML=fileContainer.innerHTML+fileTemplate;
+                }
             } else {
-                assignees[i].classList.add("hidden");
-                assignees[i].classList.remove("flex");
+                fileContainer.innerHTML=``;
             }
+        });
+        
+        const priority = document.querySelector('#priority');
+        const mpriority = document.querySelector('#m-priority');
+        const priorities = document.getElementsByName('priority');
+        const prioritiesColors =document.querySelectorAll(".priority-color");
+    
+        priorities.forEach((radio,i)=>{
+            radio.addEventListener("change",()=>{
+                if (radio.checked) {
+                    const color=prioritiesColors[i].value;
+                    console.log(color);
+    
+                    mpriority.classList.add("hidden");
+                    mpriority.classList.remove("flex");
+                    priority.classList.add("flex");
+                    priority.classList.remove("hidden");
+                    
+                    priority.innerHTML=radio.value;
+                    priority.style=`color:${color}`;
+        
+                }else{
+                    mpriority.classList.add("flex");
+                    mpriority.classList.remove("hidden");
+                    priority.classList.add("hidden");   
+                    priority.classList.remove("flex");
+                }
+            })
         })
-    })
 
-    const types = document.getElementsByName('type');
-    const type = document.querySelector('#type');
-    const mType = document.querySelector('#m-type');
-    const typeColors =document.querySelectorAll(".type-color");
+    })();
 
-    types.forEach((radio,i)=>{
-        radio.addEventListener("input",()=>{
-            if (radio.checked) {
-                const color=typeColors[i].value;
-                console.log(color);
-
-                mType.classList.add("hidden");
-                mType.classList.remove("flex");
-                type.classList.add("flex");
-                type.classList.remove("hidden");
-                
-                type.children[0].style=`background-color:${color}`;
-                type.children[1].innerText=radio.value;
-    
-            }else{
-                mType.classList.add("flex");
-                mType.classList.remove("hidden");
-                type.classList.add("hidden");   
-                type.classList.remove("flex");
-            }
-        })
-    })
-
-    const fileInput=document.querySelector("#issue-creation-file");
-    const fileContainer=document.querySelector("#file-container");
-    
-    fileInput.addEventListener('change', () => {
-        const files = fileInput.files;
-        fileContainer.innerHTML=``
-        if (files.length > 0) {       
-            for(let i=0 ; i< files.length ; i++){
-                const fileTemplate=`
-                    <div class="btn border border-neutral bg-base-300 font-light text-sm flex w-fit items-center gap-1">
-                        <img src="{% static 'img/save.svg' %}" alt="${files[i].name}">
-                        <p>${files[i].name}</p>
-                    </div>
-                `;
-                fileContainer.innerHTML=fileContainer.innerHTML+fileTemplate;
-            }
-        } else {
-            fileContainer.innerHTML=``;
-        }
-    });
-    
-    const priority = document.querySelector('#priority');
-    const mpriority = document.querySelector('#m-priority');
-    const priorities = document.getElementsByName('priority');
-    const prioritiesColors =document.querySelectorAll(".priority-color");
-
-    priorities.forEach((radio,i)=>{
-        radio.addEventListener("change",()=>{
-            if (radio.checked) {
-                const color=prioritiesColors[i].value;
-                console.log(color);
-
-                mpriority.classList.add("hidden");
-                mpriority.classList.remove("flex");
-                priority.classList.add("flex");
-                priority.classList.remove("hidden");
-                
-                priority.innerHTML=radio.value;
-                priority.style=`color:${color}`;
-    
-            }else{
-                mpriority.classList.add("flex");
-                mpriority.classList.remove("hidden");
-                priority.classList.add("hidden");   
-                priority.classList.remove("flex");
-            }
-        })
-    })
 
 </script>
 

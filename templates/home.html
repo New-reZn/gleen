@@ -5,60 +5,60 @@
 {% block main %}
 
 {% if plan %}
-<div class="flex flex-col md:flex-row gap-4 pb-3 px-4 items-center" id="tabs-container">
-    <div class="grow flex justify-between items-center">
-            <div class="flex flex-col">
-                <p class="capitalize text-lg">{{plan.name}}</p>
-                <p class="capitalize text-sm font-light opacity-30 truncate w-96 break-words">{{plan.desc}}</p>
-            </div>
-            <button class="cursor-pointer p-2 bg-base-200 rounded-lg"
+<div class="flex flex-col md:flex-row gap-4 pb-3 px-4 items-center flex-none" id="tabs-container">
+    <div class="flex grow justify-between items-center">
+        <div class="flex flex-col">
+            <p class="capitalize text-lg">{{plan.name}}</p>
+            <p class="capitalize text-sm font-light opacity-30 truncate w-96 break-words">{{plan.desc}}</p>
+        </div>
+        <button class="cursor-pointer p-2 bg-base-200 rounded-lg"
+            type="button"
+            hx-target="#top-layer" 
+            hx-swap="innerHTML"
+            hx-get="/change_plan/" 
+        >
+            <img src="{% static 'img/change.svg' %}" alt="add" height="18px" width="18px">
+        </button>
+    </div>
+    <div class="tabs tabs-box p-1 shadow-none border-none w-fit" id="tabs">
+        <input id="report-tab" type="radio" name="plan-tabs" class="tab w-24" aria-label="Report" checked />
+        <input id="board-tab" type="radio" name="plan-tabs" class="tab w-24" aria-label="Board" />
+        <input id="issues-tab" type="radio" name="plan-tabs" class="tab w-24" aria-label="Issues" />
+    </div>
+</div>
+<div class="card bg-base-200 shadow-sm shadow-drop hidden grow" id="Report">
+    {% include "home_tabs/report_tab.html" %}
+</div>
+<div class="card bg-base-200 shadow-sm shadow-drop hidden grow" id="Board">
+    {% include "home_tabs/board_tab.html" %}
+</div>
+<div class="card bg-base-200 shadow-sm shadow-drop grow hidden" id="Issues">
+    {% include "home_tabs/issues_tab.html" %}
+</div>
+{%else%}
+<div class="card gap-2 h-full bg-base-200 shadow-drop shadow-sm grid items-center justify-center p-16">
+    <div class="grid items-center justify-center gap-6">
+        <div class="grid items-center justify-center">
+            <img src="{% static 'img/file-search.svg' %}" alt="add" height="256px" width="256px">
+        </div>
+
+        <div class="grid items-center justify-center gap-6">
+            <p class="text-xl">
+                No plan. Create one?
+            </p>
+            
+            <button class="btn bg-base-200 border-neutral border-b-4 w-full p-4 py-6 text-lg" 
                 type="button"
                 hx-target="#top-layer" 
                 hx-swap="innerHTML"
-                hx-get="/change_plan/" 
+                hx-get="/create_plan/" 
             >
-                <img src="{% static 'img/change.svg' %}" alt="add" height="18px" width="18px">
+                <img src="{% static 'img/add.svg' %}" alt="add" height="18px" width="18px">
+                <span>New Plan</span>
             </button>
         </div>
-        <div class="tabs tabs-box p-1 shadow-none border-none w-fit" id="tabs">
-            <input id="report-tab" type="radio" name="plan-tabs" class="tab w-24" aria-label="Report" checked />
-            <input id="board-tab" type="radio" name="plan-tabs" class="tab w-24" aria-label="Board" />
-            <input id="issues-tab" type="radio" name="plan-tabs" class="tab w-24" aria-label="Issues" />
-        </div>
     </div>
-    <div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Report">
-        {% include "home_tabs/report_tab.html" %}
-    </div>
-    <div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Board">
-        {% include "home_tabs/board_tab.html" %}
-    </div>
-    <div class="card bg-base-200 shadow-sm shadow-drop hidden" id="Issues">
-        {% include "home_tabs/issues_tab.html" %}
-    </div>
-{%else%}
-    <div class="card gap-2 h-full bg-base-200 shadow-drop shadow-sm grid items-center justify-center p-16">
-        <div class="grid items-center justify-center gap-6">
-            <div class="grid items-center justify-center">
-                <img src="{% static 'img/file-search.svg' %}" alt="add" height="256px" width="256px">
-            </div>
-
-            <div class="grid items-center justify-center gap-6">
-                <p class="text-xl">
-                    No plan. Create one?
-                </p>
-                
-                <button class="btn bg-base-200 border-neutral border-b-4 w-full p-4 py-6 text-lg" 
-                    type="button"
-                    hx-target="#top-layer" 
-                    hx-swap="innerHTML"
-                    hx-get="/create_plan/" 
-                >
-                    <img src="{% static 'img/add.svg' %}" alt="add" height="18px" width="18px">
-                    <span>New Plan</span>
-                </button>
-            </div>
-        </div>
-    </div>
+</div>
 {% endif %}
 
 

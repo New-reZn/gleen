@@ -1,0 +1,109 @@
+{% load static %}
+
+<!-- TODO : add,open and drag issues -->
+{% for status in status %}
+<div class="p-4 pb-1 card bg-base-300 gap-2 border border-neutral shadow-lg rounded-xl min-w-96">
+    <div class="flex flex-col gap-0.5 px-2">
+        <div class="flex justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded-full border-2 overflow-hidden" style="border-color: {{status.color}};">
+                    <div class="w-full h-full opacity-50" style="background-color: {{status.color}};"></div>
+                </div>
+                <p class="">{{status.name}}</p>
+            </div>
+        </div>
+        <p class="opacity-50 text-sm">{{status.desc}}</p>
+    </div>
+    <form class="flex flex-col gap-2 overflow-y-auto lg:max-h-[350px] justify-self-start issue-draggable-area grow" 
+        method="post"
+        hx-post="/kanban_change/"
+        hx-trigger="orderUpdated"
+        hx-swap="none"
+    >
+        {% csrf_token %}
+        <input type="hidden" name="status" value="{{status.id}}">
+        <input type="hidden" name="latest_issue" value="">
+        
+        {% for issue in issues %}
+            {%if issue.status.id == status.id %}
+                <div class="card flex flex-col gap-1 bg-base-200 rounded-xl p-2 px-3 cursor-grab issue-draggable" draggable="true" id="issue-{{issue.id}}">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded-full border-2 overflow-hidden" style="border-color: {{issue.type.color}};">
+                                <div class="w-full h-full opacity-50" style="background-color: {{issue.type.color}};"></div>
+                            </div>
+                            <p class="text-sm">{{issue.name}} #{{issue.id}} </p>
+                        </div>
+                        <button type="button" class="hover:bg-neutral active:brightness-110 rounded-full p-1 cursor-pointer">
+                            <img src="{% static 'img/menu-dot.svg' %}" alt="button" width="16" height="16">
+                        </button>
+                    </div>
+                    <p class="text-sm pb-1">{{issue.desc}}</p>
+                    <div class="flex">
+                        <div class="border rounded-xl p-2 flex gap-1 items-center" style="border-color: {{issue.priority.color}};">                           
+                            <svg style="color: {{issue.priority.color}};" width="20" height="13" viewBox="0 0 23 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 7.87566C4.5 1.37554 15.5 -3.62451 21 7.87566C17 18.3756 5.5 15.8756 2 7.87566Z" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="11.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                            </svg>                                
+                            <p class="text-sm">{{issue.priority.name}}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </form>
+    <div class="flex flex-col items-start justify-end">
+        <button  class="btn bg-transparent outline-0 hover:bg-neutral border-0 shadow-none p-1 px-3 rounded-lg"
+            type="button"
+            hx-target="#top-layer" 
+            hx-swap="innerHTML"
+            hx-get="/create_issue/" 
+        >
+            <img src="{% static 'img/add.svg' %}" alt="button" width="18" height="18">
+            <p>Add Issue</p>                
+        </button>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+(function (){
+    
+    const draggableElements = document.querySelectorAll('.issue-draggable[draggable="true"]');
+    const draggablAreas = document.querySelectorAll('.issue-draggable-area');
+    
+    draggableElements.forEach(draggableElement=>{
+        draggableElement.addEventListener("dragstart", (event) =>
+            event.dataTransfer.setData("text/plain", event.target.id),
+        );
+        
+    })
+
+    draggablAreas.forEach(draggablArea=>{
+        draggablArea.addEventListener("dragover",(e)=>e.preventDefault())
+        draggablArea.addEventListener("dragenter",(e)=>e.preventDefault())
+
+        draggablArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const draggedId = e.dataTransfer.getData('text/plain');
+            const dragged = document.getElementById(draggedId);
+
+            const target = e.target.closest('.issue-draggable');
+            const targetArea = e.target.closest('.issue-draggable-area');
+            
+            if(targetArea!=dragged.parentElement){
+                if(target){
+                    target.insertAdjacentElement('afterend', dragged);
+                }else{
+                    targetArea.appendChild(dragged);
+                }
+                
+                console.log(draggedId.toString().split("-")[1]);
+                targetArea.querySelector("input[name='latest_issue']").value=draggedId.toString().split("-")[1];
+                const event = new CustomEvent('orderUpdated');
+                targetArea.dispatchEvent(event);
+            }
+        });
+    })
+})();
+</script>

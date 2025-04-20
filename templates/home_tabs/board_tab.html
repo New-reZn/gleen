@@ -1,1 +1,15 @@
-board
+{% load static %}
+<div class="grid p-4 gap-2 w-full pb-3">
+    <form hx-post="/" hx-swap="innerHTML" hx-target="#board"  class="flex gap-3">
+        {% csrf_token %}
+        <label class="input grow">
+            <img src="{% static 'img/filter.svg' %}" height="24px" width="24px" alt="search bar" > 
+            <input name="search" type="search" required placeholder="Search"/>
+        </label>
+        <button type="submit"  class="btn bg-success border border-success-content">Find</button>
+    </form>
+</div>
+
+<div class="h-full overflow-x-auto flex gap-2 pt-0 p-4" id="board">
+    {% include 'component/kanban.html' %}
+</div>
