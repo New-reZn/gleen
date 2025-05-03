@@ -177,6 +177,10 @@ class Activities(models.Model):
     
     created_on=models.DateTimeField(auto_now_add=True)
     
+    @property
+    def model_name(self):
+        return self._meta.model_name
+    
     def __str__(self):
         return f"{self.subject} {self.verb} {self.object} on {self.created_on}"
 
@@ -191,6 +195,10 @@ class Comment(models.Model):
     created_on=models.DateTimeField(auto_now_add=True)
     updated_on=models.DateTimeField(auto_now=True)
     
+    
+    @property
+    def model_name(self):
+        return self._meta.model_name
     
     def __str__(self):
         return f"{self.creator} commented \"{self.comment}\" on \"{self.issue.name}\""

@@ -14,7 +14,7 @@
         </div>
         <p class="opacity-50 text-sm">{{status.desc}}</p>
     </div>
-    <form class="flex flex-col gap-2 overflow-y-auto lg:max-h-[350px] justify-self-start issue-draggable-area grow" 
+    <form class="flex flex-col gap-2 overflow-y-auto justify-self-start issue-draggable-area grow" 
         method="post"
         hx-post="/kanban_change/"
         hx-trigger="orderUpdated"
@@ -34,9 +34,39 @@
                             </div>
                             <p class="text-sm">{{issue.name}} #{{issue.id}} </p>
                         </div>
-                        <button type="button" class="hover:bg-neutral active:brightness-110 rounded-full p-1 cursor-pointer">
-                            <img src="{% static 'img/menu-dot.svg' %}" alt="button" width="16" height="16">
-                        </button>
+                        
+                        <label class="relative">
+                            <input type="checkbox" class="hidden peer">
+                            <ul class="menu bg-base-100 border border-neutral drop-shadow-md justify-center gap-1 w-36 hidden peer-checked:flex rounded-box p-1 absolute right-full">
+                                <li class="rounded-lg">
+                                    <button 
+                                    type="submit"
+                                    hx-target="#top-layer" 
+                                    hx-swap="innerHTML"
+                                    hx-get="/view_issue/"
+                                    class="p-2.5 flex items-center justify-start gap-2.5">
+                                        <img src="{% static 'img/pin.svg' %}" height="16px" width="16px" alt="pin button">                                                                           
+                                        <p>Pin Issue</p>
+                                    </button>
+                                </li>
+                                <li class="rounded-lg">
+                                    <button 
+                                    type="submit"
+                                    hx-target="#top-layer" 
+                                    hx-swap="innerHTML"
+                                    hx-get="/view_issue/{{issue.id}}/"
+                                    class="p-2.5 gap-2.5 flex items-center justify-start">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10.8 21.5998H4.80001C3.47453 21.5998 2.40002 20.5253 2.40002 19.1998L2.40012 4.79989C2.40013 3.47441 3.47464 2.3999 4.80012 2.3999H15.6004C16.9259 2.3999 18.0004 3.47442 18.0004 4.7999V9.5999M17.4 17.3489V17.2857M6.6004 7.1999H13.8004M6.6004 10.7999H13.8004M6.6004 14.3999H10.2004M21.6 17.3999C21.6 17.3999 20.6039 20.3396 17.4 20.2882C14.1962 20.2369 13.2 17.3999 13.2 17.3999C13.2 17.3999 14.1558 14.4089 17.4 14.4089C20.6443 14.4089 21.6 17.3999 21.6 17.3999Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>                                            
+                                        <p>View Issue</p>
+                                    </button>
+                                </li>   
+                            </ul>
+                            <div class="hover:bg-neutral active:brightness-110 rounded-full p-1 cursor-pointer">
+                                <img src="{% static 'img/menu-dot.svg' %}" alt="button" width="16" height="16">
+                            </div>
+                        </label>
                     </div>
                     <p class="text-sm pb-1">{{issue.desc}}</p>
                     <div class="flex">

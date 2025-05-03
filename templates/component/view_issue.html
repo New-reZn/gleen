@@ -1,0 +1,274 @@
+{% extends "component/base_popup.html" %}
+
+{% load static %}
+
+{% block dialog %}
+<div class="w-96 md:w-[48rem]">
+    <div class="p-2 px-3 flex border-b-neutral border-b justify-between items-center">
+        <div class="flex gap-2 items-center">
+            <p>{{issue.name}} <span> #{{issue.id}}</span> </p>
+            <div class="text-sm relative grid items-center">
+                <input class="peer hidden" type="checkbox" name="s" id="priority">
+                <!--TODO:priority-->
+                <dialog open class="hidden peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-40">
+                    {% for i in priorities %}
+                    <label class="flex gap-2 p-1 priority">
+                        <input type="radio" name="priority" value="{{i}}">
+                        <input type="hidden" value="{{i.color}}">    
+                        <p>{{i}}</p>
+                    </label>
+                    {% endfor %}
+                </dialog>
+                <label for="priority"  class="border rounded-xl p-2 flex gap-1 items-center btn" style="border-color: {{issue.priority.color}};" id="priority-shown">                           
+                    <svg style="color: {{issue.priority.color}};" width="20" height="13" viewBox="0 0 23 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 7.87566C4.5 1.37554 15.5 -3.62451 21 7.87566C17 18.3756 5.5 15.8756 2 7.87566Z" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="11.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                    </svg>                                
+                    <p class="text-sm" id="priority-name">{{issue.priority.name}}</p>
+                </label>
+            </div>
+        </div>
+        <form method="dialog">
+            <button type="submit" class="btn rounded-full p-1 w-8 h-8 border-0 shadow-none outline-0">
+                <img src="{% static 'img/cross.svg' %}" height="16px" width="16px" alt="end issue view"/>
+            </button>
+        </form>
+    </div>
+    <div class="flex flex-col md:flex-row">
+        <label for="toggle-menu" class="btn md:hidden mx-4 mt-2 border-neutral border">
+            <img src="{% static 'img/menu-line.svg' %}" width="24px" height="24px" alt="" srcset="">
+            <p>Menu</p>
+        </label>
+        <input class="peer hidden" type="checkbox" id="toggle-menu">
+        <div class="hidden peer-checked:block md:block shrink border-b border-b-neutral md:border-b-0 md:border-r-neutral md:border-r ">
+            <div class="p-3 space-y-2 border-b-neutral border-b">
+                <div class="relative">
+                    <input class="peer hidden" type="checkbox" name="s" id="status">
+                    <!--TODO:status-->
+                    <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-30">
+                        {% for i in status %}
+                        <label class="flex gap-2 p-1 statue">
+                            <input type="radio" name="status" value="{{i}}">
+                            <input type="hidden" value="{{i.color}}">    
+                            <p>{{i}}</p>
+                        </label>
+                        {% endfor %}
+                    </dialog>
+                    <label for="status" class="flex items-center gap-2 rounded-box border p-2 px-3 btn justify-start" style="border-color: {{issue.status.color}};" id="status-shown">
+                        <div class="w-4 h-4 rounded-full border-2 overflow-hidden" style="border-color: {{issue.status.color}};">
+                            <div class="w-full h-full opacity-50" style="background-color: {{issue.status.color}};"></div>
+                        </div>
+                        <p id="status-name">{{issue.status.name}}</p>
+                    </label>
+                </div>
+                <p class="text-xs px-2">Updated on : {{issue.updated_on|date:"b, d, h:m:s"}}</p>
+            </div>
+            <div class="p-3 space-y-2 border-b-neutral border-b">
+                <div class="space-y-1">
+                    <p>Assigned People</p>
+                    <!--TODO:assigned-->
+                    <div class="relative">
+                        <input class="peer hidden" type="checkbox" id="add-assignees">
+                        <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral  z-20 shadow-md shadow-base-300">
+                            {% for i in assignees %}
+                            <label class="flex gap-2 p-1 capitalize all-assignees" id="add-assignees-{{i.id}}">
+                                <input type="checkbox" name="add-assignees" value="{{i.id}}">
+                                <img src="{{i.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
+                                <p>{{i}}</p>
+                            </label>
+                            {% endfor %}
+                        </dialog>
+                        <label for="add-assignees" class="btn w-full border-neutral border border-b-4 justify-start" id="assignees-shown">
+                            <p>Add Assignees</p>
+                        </label>
+                    </div>
+                    <div class="space-y-2 p-1">
+                        {% for i in assignees %}
+                            {% for u in assigneed_assignees %}
+                                {% if i.id == u.id %}
+                                    <label id="assign_assignee-{{u.id}}"  class="flex items-center gap-1.5 p-1 px-3 btn justify-start shadow-none border border-neutral assignees-list">
+                                        <input type="checkbox" checked value="{{u.id}}" name="assignees">
+                                        <img src="{{u.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
+                                        <p class="capitalize">{{u}}</p>
+                                    </label>
+                                {% else %}
+                                    <label id="assign_assignee-{{i.id}}"  class="flex items-center gap-1.5 p-1 px-3 btn justify-start shadow-none border border-neutral assignees-list">
+                                        <input type="checkbox" value="{{i.id}}" name="assignees">
+                                        <img src="{{i.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
+                                        <p class="capitalize">{{i}}</p>
+                                    </label>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <p>Issue Type</p>
+                    <!--TODO:Types-->
+                    <div class="relative">
+                        <input class="peer hidden" type="checkbox" id="type">
+                        <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-10">
+                            {% for i in types %}
+                            <label class="types flex gap-2 p-1 capitalize">
+                                <input type="radio" name="type" value="{{i}}">
+                                <input type="hidden" value="{{i.color}}">    
+                                <p>{{i}}</p>
+                            </label>
+                            {% endfor %}
+                        </dialog>
+                        <label for="type" class="btn w-full border-neutral border border-b-4 justify-start capitalize" id="type-shown">
+                            <div class="w-4 h-4 rounded-full overflow-hidden" style="background-color: {{issue.type.color}};">
+                            </div>
+                            <p id="type-name">{{issue.type.name}}</p>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="p-1 py-3 flex flex-col gap-1 items-start">
+                <button type="submit" class="btn shadow-none outline-none border-0 w-full justify-start gap-2">
+                    <img src="{% static 'img/lock.svg' %}" height="24px" width="24px" alt="Lock button">
+                    <p>Lock Issue</p>
+                </button>
+                <button type="submit" class="btn shadow-none outline-none border-0 w-full gap-2  justify-start">
+                    <img src="{% static 'img/pin.svg' %}" height="24px" width="24px" alt="Pin button">
+                    <p>Pin Issue</p>
+                </button>
+                <button type="submit" class="btn shadow-none outline-none border-0 w-full gap-2  justify-start text-red-600">
+                    <img src="{% static 'img/trashcan-red.svg' %}" height="24px" width="24px" alt="Delete button">
+                    <p>Delete Issue</p>
+                </button>
+
+            </div>
+        </div>
+        <div class="grow flex flex-col p-2 gap-1 relative">
+            <div class="absolute h-[80%] w-[3px] bg-neutral-500 top-1/2 left-0 translate-x-9 -translate-y-1/2 -z-10">
+            </div>
+            {% for data in thread %}
+                {% if data.model_name == "comment" %}
+                    <div class="card bg-base-300 border rounded-box border-neutral">
+                        <div class="flex justify-start items-center gap-2 px-3 p-2 border-b border-b-neutral">
+                            <img src="{{data.creator.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
+                            <p>{{data.creator}}</p>
+                            <p>{{data.updated_on|date:"d-m-Y"}}</p>
+                        </div>
+                        <div class="p-2">
+                            {{data.comment}}
+                        </div>
+                    </div>
+                {% elif data.model_name == "activities" %}
+                    <div class="flex items-center gap-2 px-3.5 p-2">
+                        <img src="{{data.subject.image.url}}" alt="user" class="rounded-full w-8 h-8" height="24px" width="24px" />
+                        <p>{{data.subject}} {{data.verb}} {{data.object}} on {{data.created_on|date:"d-m-Y"}}</p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <div class="">
+                <div class="card bg-base-300 border rounded-box border-neutral">
+                    <form action="" method="">
+                        <div class="flex justify-between items-center px-3 p-2 border-b border-b-neutral">
+                            <div class="flex items-center gap-2 ">
+                                <img src="{{request.user.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
+                                <p>{{request.user}}</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button class="btn bg-base-200"  type="reset">Cancel</button>
+                                <button type="submit" class="btn bg-success border-success-content">
+                                    <img src="{% static 'img/save.svg' %}" width="16px" height="16px"/>
+                                    <p>Submit</p>
+                                </button>
+                            </div>
+                        </div>
+                        <textarea class="w-full min-h-36 text-base align-text-top p-2 px-3 resize-none outline-none min-w-full" name="comment" placeholder="write your shit ...🔥✍️" id=""></textarea>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        const priorities=document.querySelectorAll(".priority")
+        const priority_shown=document.querySelector("#priority-shown")
+        
+        priorities.forEach(e=>{
+            const name=e.querySelector(`input[name="priority"]`);
+            const color=e.querySelector(`input[type="hidden"]`);
+            name.addEventListener("change",()=>{
+                priority_shown.querySelector("#priority-name").innerText=name.value;
+                priority_shown.querySelector("svg").style=`color:${color.value};`;
+                priority_shown.style=`border-color:${color.value};`;
+            })
+        })
+
+        const status=document.querySelectorAll(".statue")
+        const status_shown=document.querySelector("#status-shown")
+        
+        status.forEach(e=>{
+            const name=e.querySelector(`input[name="status"]`);
+            const color=e.querySelector(`input[type="hidden"]`);
+            name.addEventListener("change",()=>{
+                status_shown.querySelector("#status-name").innerText=name.value;
+                status_shown.querySelector("div").style=`border-color:${color.value};`;
+                status_shown.querySelector("div>div").style=`background-color:${color.value};`;
+                status_shown.style=`border-color:${color.value};`;
+            })
+        })
+
+        const types=document.querySelectorAll(".types")
+        const type_shown=document.querySelector("#type-shown")
+        
+        types.forEach(e=>{
+            const name=e.querySelector(`input[name="type"]`);
+            const color=e.querySelector(`input[type="hidden"]`);
+            name.addEventListener("change",()=>{
+                type_shown.querySelector("#type-name").innerText=name.value;
+                type_shown.querySelector("div").style=`background-color:${color.value};`;
+            })
+        })
+
+        const assignees_list=document.querySelectorAll(".assignees-list");
+        const all_assignees=document.querySelectorAll(".all-assignees");
+        
+        assignees_list.forEach(e=>{
+            const a_id=e.querySelector(`input[type="checkbox"]`);
+            const shown_assingees=document.querySelector(`#add-assignees-${a_id.value}`);
+
+            a_id.addEventListener("change",(i)=>{
+                if(!i.target.checked){
+                    e.classList.add("hidden");
+                    e.classList.remove("flex");
+                    shown_assingees.querySelector(`input[type="checkbox"]`).checked=false;
+                }else{
+                    e.classList.add("flex");
+                    e.classList.remove("hidden");
+                    shown_assingees.querySelector(`input[type="checkbox"]`).checked=true;
+                }
+            })
+
+            shown_assingees.querySelector(`input[type="checkbox"]`).checked=true;
+
+        })
+
+        all_assignees.forEach(e=>{
+           const ele=e.querySelector(`input[type="checkbox"]`);
+           const shown_assingees=document.querySelector(`#assign_assignee-${ele.value}`);
+
+            ele.addEventListener("change",(i)=>{
+                if(!i.target.checked){
+                    shown_assingees.classList.add("hidden");
+                    shown_assingees.classList.remove("flex");
+                    shown_assingees.querySelector(`input[type="checkbox"]`).checked=false;
+                }else{
+                    shown_assingees.classList.add("flex");
+                    shown_assingees.classList.remove("hidden");
+                    shown_assingees.querySelector(`input[type="checkbox"]`).checked=true;
+                }
+            })
+        })
+
+        
+    })();
+</script>
+
+{% endblock %}

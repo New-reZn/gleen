@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from setup.models import GlobalSettings
 from gleen.helpers import gleen_authenticate,admin_privilege,get_object_or_none,htmx_required
 from django.contrib.auth import authenticate, login, logout
+from itertools import chain
+from operator import attrgetter
 from core.models import *
 from core.groups import *
 from django.conf import settings
@@ -595,3 +597,43 @@ def kanban_change(request):
         
         print("new_status:",status,"new_issues:",issue)
         return HttpResponse("ok")
+    
+def view_issue(request,issue_id):
+    if request.method=="GET" and request.htmx:
+        cookies_current_plan=request.COOKIES.get("current_plan")
+        if cookies_current_plan != None:
+            current_plan=Plan.objects.get(id=cookies_current_plan)
+        else:
+            current_plan=Plan.objects.latest('updated_on')
+        
+        issue=Issues.objects.get(id=issue_id)
+        
+        comments=Comment.objects.filter(issue=issue)
+        logs=Activities.objects.filter(issue=issue)
+        
+        thread_data=sorted(chain(comments,logs),key=attrgetter('created_on'))
+        
+        assigneed_assignees=issue.assignees.all().union(
+            User.objects.filter(pk=issue.creator.pk)
+        )
+        
+        if not issue:
+            pass
+
+        
+        data={
+            "plan":current_plan,
+            "assignees":User.objects.all(),
+            "assigneed_assignees":assigneed_assignees,
+            "types":current_plan.types_set.all(),
+            "priorities":current_plan.priority_set.all(),
+            "status":current_plan.status_set.all(),      
+            "issue":issue,
+            "thread":thread_data,
+        }
+        
+
+        return render(request,"component/view_issue.html",data)
+    elif request.method=="POST":
+        return redirect("/") 
+    return redirect("/")
