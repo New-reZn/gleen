@@ -58,6 +58,7 @@ def index(request):
         
         count=(
             ChartObjects
+            .filter(plan=current_plan)
             .filter(created_on__date__lte=current_date)
             .values('status__name')
             .annotate(count=Count('id'))
@@ -81,7 +82,17 @@ def index(request):
         "status":status
     }
     
-    return render(request,"home.html",data)
+    response=render(request,"home.html",data)
+    
+    response.set_cookie(
+            key='current_plan',
+            value=current_plan.id,
+            max_age=2592000,       
+            secure=settings.DEBUG,      
+            httponly=True,     
+            samesite='Lax'   
+        )
+    return response
 
 def signin(request):
     if request.method=="POST":
@@ -471,6 +482,7 @@ def create_chart(request):
             
             count=(
                 ChartObjects
+                .filter(plan=current_plan)
                 .filter(created_on__date__lte=current_date)
                 .values('status__name')
                 .annotate(count=Count('id'))
@@ -498,6 +510,7 @@ def create_chart(request):
             
             count=(
                 ChartObjects
+                .filter(plan=current_plan)
                 .filter(created_on__date__lte=current_date)
                 .values('status__name')
                 .annotate(count=Count('id'))
@@ -525,6 +538,7 @@ def create_chart(request):
             
             count=(
                 ChartObjects
+                .filter(plan=current_plan)
                 .filter(created_on__date__lte=current_date)
                 .values('status__name')
                 .annotate(count=Count('id'))
@@ -566,6 +580,7 @@ def create_chart(request):
             
             count=(
                 ChartObjects
+                .filter(plan=current_plan)
                 .filter(created_on__date__lte=current_date)
                 .values('status__name')
                 .annotate(count=Count('id'))
@@ -598,8 +613,10 @@ def kanban_change(request):
         print("new_status:",status,"new_issues:",issue)
         return HttpResponse("ok")
     
+
+@htmx_required
 def view_issue(request,issue_id):
-    if request.method=="GET" and request.htmx:
+    if request.method=="GET":
         cookies_current_plan=request.COOKIES.get("current_plan")
         if cookies_current_plan != None:
             current_plan=Plan.objects.get(id=cookies_current_plan)
@@ -634,6 +651,50 @@ def view_issue(request,issue_id):
         
 
         return render(request,"component/view_issue.html",data)
-    elif request.method=="POST":
-        return redirect("/") 
+    elif request.method=="POST" :
+        comment=request.POST.get("comment")
+
+        issue=Issues.objects.filter(id=issue_id)
+        
+        
+        Comment.objects.create(
+            creator=request.user,
+            issue=issue,
+            comment=comment
+        )
+    
+        return HttpResponse("")
+        
+    return redirect("/")
+
+def change_detail(request,issue_id):
+    if request.method=="POST":
+        priority=request.POST.get("priority")
+        status=request.POST.get("status")
+        add_assignees=request.POST.getlist('add-assignees')
+        type=request.POST.get("type")
+        
+        print("ads",add_assignees)
+        
+        issue=Issues.objects.filter(id=issue_id).first()
+        priority=Priority.objects.filter(name=priority).first()
+        type=Types.objects.filter(name=type).first()
+        status=Status.objects.filter(name=status).first()
+        
+        if not issue or not priority or not status:
+            return redirect("/")
+        
+        issue.assignees.clear()
+        for i in add_assignees:
+            assignee=User.objects.filter(id=i).first()
+            if not assignee:
+                return redirect("/")
+            issue.assignees.add(assignee)
+            
+        issue.priority=priority
+        issue.type=type
+        issue.status=status
+        
+        issue.save(updater=request.user)
+        
     return redirect("/")

@@ -12,4 +12,5 @@ urlpatterns = [
     path("create_chart/",views.create_chart),
     path("kanban_change/",views.kanban_change),
     path("view_issue/<int:issue_id>/",views.view_issue),
+    path("change_issue_details/<int:issue_id>/",views.change_detail),
 ]

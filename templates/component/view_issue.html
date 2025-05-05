@@ -3,17 +3,19 @@
 {% load static %}
 
 {% block dialog %}
+<form action="/change_issue_details/{{issue.id}}/" method="post">
+{% csrf_token %}
 <div class="w-96 md:w-[48rem]">
     <div class="p-2 px-3 flex border-b-neutral border-b justify-between items-center">
         <div class="flex gap-2 items-center">
             <p>{{issue.name}} <span> #{{issue.id}}</span> </p>
             <div class="text-sm relative grid items-center">
-                <input class="peer hidden" type="checkbox" name="s" id="priority">
+                <input class="peer hidden" type="checkbox"  id="priority">
                 <!--TODO:priority-->
                 <dialog open class="hidden peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-40">
                     {% for i in priorities %}
                     <label class="flex gap-2 p-1 priority">
-                        <input type="radio" name="priority" value="{{i}}">
+                        <input type="radio" name="priorities" value="{{i}}">
                         <input type="hidden" value="{{i.color}}">    
                         <p>{{i}}</p>
                     </label>
@@ -23,16 +25,24 @@
                     <svg style="color: {{issue.priority.color}};" width="20" height="13" viewBox="0 0 23 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M2 7.87566C4.5 1.37554 15.5 -3.62451 21 7.87566C17 18.3756 5.5 15.8756 2 7.87566Z" stroke="currentColor" stroke-width="2"/>
                         <circle cx="11.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="2"/>
-                    </svg>                                
+                    </svg>
+                    <input type="hidden" name="priority" value="{{issue.priority}}">                                
                     <p class="text-sm" id="priority-name">{{issue.priority.name}}</p>
                 </label>
             </div>
         </div>
-        <form method="dialog">
-            <button type="submit" class="btn rounded-full p-1 w-8 h-8 border-0 shadow-none outline-0">
-                <img src="{% static 'img/cross.svg' %}" height="16px" width="16px" alt="end issue view"/>
-            </button>
-        </form>
+        <div id="switchClose-{{issue.id}}">
+            <form method="dialog" class="">
+                <button type="submit" class="btn rounded-full p-1 w-8 h-8 border-0 shadow-none outline-0">
+                    <img src="{% static 'img/cross.svg' %}" height="16px" width="16px" alt="end issue view"/>
+                </button>
+            </form>
+            <div  class="hidden">
+                <button type="submit" class="btn rounded-full p-1 w-8 h-8 border-0 shadow-none outline-0">
+                    <img src="{% static 'img/cross.svg' %}" height="16px" width="16px" alt="end issue view"/>
+                </button>
+            </div>
+        </div>
     </div>
     <div class="flex flex-col md:flex-row">
         <label for="toggle-menu" class="btn md:hidden mx-4 mt-2 border-neutral border">
@@ -43,12 +53,12 @@
         <div class="hidden peer-checked:block md:block shrink border-b border-b-neutral md:border-b-0 md:border-r-neutral md:border-r ">
             <div class="p-3 space-y-2 border-b-neutral border-b">
                 <div class="relative">
-                    <input class="peer hidden" type="checkbox" name="s" id="status">
+                    <input class="peer hidden" type="checkbox" id="status">
                     <!--TODO:status-->
                     <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-30">
                         {% for i in status %}
                         <label class="flex gap-2 p-1 statue">
-                            <input type="radio" name="status" value="{{i}}">
+                            <input type="radio" name="statuses" value="{{i}}">
                             <input type="hidden" value="{{i.color}}">    
                             <p>{{i}}</p>
                         </label>
@@ -58,6 +68,7 @@
                         <div class="w-4 h-4 rounded-full border-2 overflow-hidden" style="border-color: {{issue.status.color}};">
                             <div class="w-full h-full opacity-50" style="background-color: {{issue.status.color}};"></div>
                         </div>
+                        <input type="hidden" name="status" value="{{issue.status}}">
                         <p id="status-name">{{issue.status.name}}</p>
                     </label>
                 </div>
@@ -92,7 +103,7 @@
                                         <p class="capitalize">{{u}}</p>
                                     </label>
                                 {% else %}
-                                    <label id="assign_assignee-{{i.id}}"  class="flex items-center gap-1.5 p-1 px-3 btn justify-start shadow-none border border-neutral assignees-list">
+                                    <label id="assign_assignee-{{i.id}}"  class="items-center gap-1.5 p-1 px-3 btn justify-start shadow-none border border-neutral assignees-list hidden">
                                         <input type="checkbox" value="{{i.id}}" name="assignees">
                                         <img src="{{i.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
                                         <p class="capitalize">{{i}}</p>
@@ -110,7 +121,7 @@
                         <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-10">
                             {% for i in types %}
                             <label class="types flex gap-2 p-1 capitalize">
-                                <input type="radio" name="type" value="{{i}}">
+                                <input type="radio" name="types" value="{{i}}">
                                 <input type="hidden" value="{{i.color}}">    
                                 <p>{{i}}</p>
                             </label>
@@ -119,21 +130,22 @@
                         <label for="type" class="btn w-full border-neutral border border-b-4 justify-start capitalize" id="type-shown">
                             <div class="w-4 h-4 rounded-full overflow-hidden" style="background-color: {{issue.type.color}};">
                             </div>
+                            <input type="hidden" name="type" value="{{issue.type}}">
                             <p id="type-name">{{issue.type.name}}</p>
                         </label>
                     </div>
                 </div>
             </div>
             <div class="p-1 py-3 flex flex-col gap-1 items-start">
-                <button type="submit" class="btn shadow-none outline-none border-0 w-full justify-start gap-2">
+                <button type="button" class="btn shadow-none outline-none border-0 w-full justify-start gap-2">
                     <img src="{% static 'img/lock.svg' %}" height="24px" width="24px" alt="Lock button">
                     <p>Lock Issue</p>
                 </button>
-                <button type="submit" class="btn shadow-none outline-none border-0 w-full gap-2  justify-start">
+                <button type="button" class="btn shadow-none outline-none border-0 w-full gap-2  justify-start">
                     <img src="{% static 'img/pin.svg' %}" height="24px" width="24px" alt="Pin button">
                     <p>Pin Issue</p>
                 </button>
-                <button type="submit" class="btn shadow-none outline-none border-0 w-full gap-2  justify-start text-red-600">
+                <button type="button" class="btn shadow-none outline-none border-0 w-full gap-2  justify-start text-red-600">
                     <img src="{% static 'img/trashcan-red.svg' %}" height="24px" width="24px" alt="Delete button">
                     <p>Delete Issue</p>
                 </button>
@@ -141,30 +153,33 @@
             </div>
         </div>
         <div class="grow flex flex-col p-2 gap-1 relative">
-            <div class="absolute h-[80%] w-[3px] bg-neutral-500 top-1/2 left-0 translate-x-9 -translate-y-1/2 -z-10">
+            <div class="absolute h-[95%] w-[3px] bg-neutral-500 top-1/2 left-0 translate-x-9 -translate-y-1/2 -z-10">
             </div>
-            {% for data in thread %}
-                {% if data.model_name == "comment" %}
-                    <div class="card bg-base-300 border rounded-box border-neutral">
-                        <div class="flex justify-start items-center gap-2 px-3 p-2 border-b border-b-neutral">
-                            <img src="{{data.creator.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
-                            <p>{{data.creator}}</p>
-                            <p>{{data.updated_on|date:"d-m-Y"}}</p>
+            <div id="thread">
+                {% for data in thread %}
+                    {% if data.model_name == "comment" %}
+                        <div class="card bg-base-300 border rounded-box border-neutral mb-2">
+                            <div class="flex justify-start items-center gap-2 px-3 p-2 border-b border-b-neutral">
+                                <img src="{{data.creator.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
+                                <p>{{data.creator}}</p>
+                                <p>{{data.updated_on|date:"d-m-Y"}}</p>
+                            </div>
+                            <div class="p-2">
+                                {{data.comment}}
+                            </div>
                         </div>
-                        <div class="p-2">
-                            {{data.comment}}
+                    {% elif data.model_name == "activities" %}
+                        <div class="flex items-center gap-2 px-3.5 p-2">
+                            <img src="{{data.subject.image.url}}" alt="user" class="rounded-full w-8 h-8" height="24px" width="24px" />
+                            <p>{{data.subject}} {{data.verb}} {{data.object}} on {{data.created_on|date:"d-m-Y"}}</p>
                         </div>
-                    </div>
-                {% elif data.model_name == "activities" %}
-                    <div class="flex items-center gap-2 px-3.5 p-2">
-                        <img src="{{data.subject.image.url}}" alt="user" class="rounded-full w-8 h-8" height="24px" width="24px" />
-                        <p>{{data.subject}} {{data.verb}} {{data.object}} on {{data.created_on|date:"d-m-Y"}}</p>
-                    </div>
-                {% endif %}
-            {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
             <div class="">
                 <div class="card bg-base-300 border rounded-box border-neutral">
-                    <form action="" method="">
+                    <form hx-post="/view_issue/{{issue.id}}/" hx-target="this" hx-swap="none" id="commentForm">
+                        {% csrf_token %}
                         <div class="flex justify-between items-center px-3 p-2 border-b border-b-neutral">
                             <div class="flex items-center gap-2 ">
                                 <img src="{{request.user.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
@@ -178,7 +193,7 @@
                                 </button>
                             </div>
                         </div>
-                        <textarea class="w-full min-h-36 text-base align-text-top p-2 px-3 resize-none outline-none min-w-full" name="comment" placeholder="write your shit ...🔥✍️" id=""></textarea>
+                        <textarea class="w-full min-h-36 text-base align-text-top p-2 px-3 resize-none outline-none min-w-full" name="comment" id="commentTextArea" placeholder="Write Your Comment..." "></textarea>
                     </form>
                 </div>
             </div>
@@ -186,18 +201,63 @@
     </div>
 </div>
 
+</form>
+
 <script>
     (function(){
+        const usr_img="{{issue.creator.image.url}}";
+        const usr_name="{{issue.creator}}";
+
+        const thread=document.querySelector("#thread");
+        
+        document.querySelector("#commentForm").addEventListener("htmx:beforeRequest",(e)=>{
+            
+            if (e.target.children[2].value==""){
+                event.preventDefault();
+                return;
+            }
+
+            const date = new Date();
+            const formattedDate = date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+            }).replace(/\//g, '-');
+
+            const template_comment = thread.children[0].cloneNode(true);
+
+            const template_image = template_comment.children[0].children[0]
+            const template_name = template_comment.children[0].children[1]
+            const template_time = template_comment.children[0].children[2]
+            const template_text = template_comment.children[1]
+
+            template_image.src=usr_img
+            template_name.innerText=usr_name
+            template_time.innerText=formattedDate
+            template_text.innerText=document.querySelector("#commentTextArea").value;
+
+            thread.appendChild(template_comment);
+        })
+
+        const close_switch=document.querySelector("#switchClose-{{issue.id}}");
+        close_switch.addEventListener('detailsUpdated',(e)=>{
+            close_switch.children[0].classList.add("hidden")
+            close_switch.children[1].classList.remove("hidden")
+        })
+
         const priorities=document.querySelectorAll(".priority")
         const priority_shown=document.querySelector("#priority-shown")
         
         priorities.forEach(e=>{
-            const name=e.querySelector(`input[name="priority"]`);
+            const name=e.querySelector(`input[name="priorities"]`);
             const color=e.querySelector(`input[type="hidden"]`);
             name.addEventListener("change",()=>{
                 priority_shown.querySelector("#priority-name").innerText=name.value;
                 priority_shown.querySelector("svg").style=`color:${color.value};`;
                 priority_shown.style=`border-color:${color.value};`;
+                priority_shown.querySelector(`input[type="hidden"]`).value=name.value;
+                const event = new CustomEvent('detailsUpdated');
+                close_switch.dispatchEvent(event);
             })
         })
 
@@ -205,13 +265,16 @@
         const status_shown=document.querySelector("#status-shown")
         
         status.forEach(e=>{
-            const name=e.querySelector(`input[name="status"]`);
+            const name=e.querySelector(`input[name="statuses"]`);
             const color=e.querySelector(`input[type="hidden"]`);
             name.addEventListener("change",()=>{
                 status_shown.querySelector("#status-name").innerText=name.value;
                 status_shown.querySelector("div").style=`border-color:${color.value};`;
                 status_shown.querySelector("div>div").style=`background-color:${color.value};`;
+                status_shown.querySelector(`input[type="hidden"]`).value=name.value;
                 status_shown.style=`border-color:${color.value};`;
+                const event = new CustomEvent('detailsUpdated');
+                close_switch.dispatchEvent(event);
             })
         })
 
@@ -219,11 +282,14 @@
         const type_shown=document.querySelector("#type-shown")
         
         types.forEach(e=>{
-            const name=e.querySelector(`input[name="type"]`);
+            const name=e.querySelector(`input[name="types"]`);
             const color=e.querySelector(`input[type="hidden"]`);
             name.addEventListener("change",()=>{
                 type_shown.querySelector("#type-name").innerText=name.value;
                 type_shown.querySelector("div").style=`background-color:${color.value};`;
+                type_shown.querySelector(`input[type="hidden"]`).value=name.value;
+                const event = new CustomEvent('detailsUpdated');
+                close_switch.dispatchEvent(event);
             })
         })
 
@@ -244,6 +310,8 @@
                     e.classList.remove("hidden");
                     shown_assingees.querySelector(`input[type="checkbox"]`).checked=true;
                 }
+                const event = new CustomEvent('detailsUpdated');
+                close_switch.dispatchEvent(event);
             })
 
             shown_assingees.querySelector(`input[type="checkbox"]`).checked=true;
@@ -264,6 +332,8 @@
                     shown_assingees.classList.remove("hidden");
                     shown_assingees.querySelector(`input[type="checkbox"]`).checked=true;
                 }
+                const event = new CustomEvent('detailsUpdated');
+                close_switch.dispatchEvent(event);
             })
         })
 

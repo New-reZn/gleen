@@ -14,3 +14,4 @@ media/files/*
 !media/global/logo.svg
 !media/**/user.svg
 *.sqlite3
+TODO.md
