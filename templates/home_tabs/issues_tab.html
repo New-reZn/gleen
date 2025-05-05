@@ -1,6 +1,6 @@
 <div class="grid p-4 gap-2 w-full pb-3">
-    <form hx-post="/" hx-swap="innerHTML" hx-target="#board" class="flex gap-3">
-        <input type="hidden" name="csrfmiddlewaretoken" value="pKFDubGN9yRalW4UhFL5ydwtzvs5WAzyu8mFW42MCtPEVRyqKwwVaJfo46qPqzdK">
+    <form hx-post="/table_search/" hx-swap="innerHTML" hx-target="#issue-table" class="flex gap-3">
+        {% csrf_token %}
         <label class="input grow">
             <img src="/static/img/filter.svg" height="24px" width="24px" alt="search bar"> 
             <input name="search" type="search" required="" placeholder="Search">
@@ -8,61 +8,6 @@
         <button type="submit" class="btn bg-success border border-success-content">Find</button>
     </form>
 </div>
-<div class="flex flex-col h-full">
-    <div class="border-y-[1px] border-[#ccc2] grid grid-cols-5">
-        <div class="border-r-[1px] border-[#ccc2] p-2 px-3 text-lg font-light">
-            Title
-        </div>
-        <div class="border-x-[1px] border-[#ccc2] p-2 px-3 text-lg font-light">
-            Assignees
-        </div>
-        <div class="border-x-[1px] border-[#ccc2] p-2 px-3 text-lg font-light">
-            Status
-        </div>
-        <div class="border-x-[1px] border-[#ccc2] p-2 px-3 text-lg font-light">
-            Reporters
-        </div>
-        <div class="border-l-[1px] border-[#ccc2] p-2 px-3 text-lg font-light">
-            Type
-        </div>
-    </div>
-    <div class="grow bg-base-300 rounded-b-box overflow-x-auto">
-        {% for i in issues %}
-            <div class="border-y-[1px] border-[#ccc2] grid grid-cols-5">
-                <div class="border-r-[1px] border-[#ccc2] p-2 px-3 capitalize">
-                    {{i}}
-                </div>
-                <div class="border-x-[1px] flex flex-col gap-2 border-[#ccc2] p-2 px-3">
-                    <div class="flex gap-2 w-fit p-2 pl-2 pr-6 drop-shadow-sm bg-base-200 rounded-lg capitalize">
-                        <img src="{{i.creator.image.url}}" class="h-6 w-6 rounded-full"  alt="">
-                        <p>{{i.creator}}</p>
-                    </div>
-                    {% for u in assignees %}
-                        {% if not u.is_reporter %}
-                            <div class="flex gap-2 w-fit p-2 pl-2 pr-6 drop-shadow-sm bg-base-200 rounded-lg capitalize">
-                                <img src="{{u.image.url}}" class="h-6 w-6 rounded-full" alt="">
-                                <p>{{u}}</p>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <div class="border-x-[1px] border-[#ccc2] p-2 px-3 capitalize">
-                    {{i.status}}
-                </div>
-                <div class="border-x-[1px] border-[#ccc2] p-2 px-3 flex flex-col gap-2">
-                    {% for u in assignees %}
-                        {% if u.is_reporter %}
-                            <div class="flex gap-2 w-fit p-2 pl-2 pr-6 drop-shadow-sm bg-base-200 rounded-lg capitalize">
-                                <img src="{{u.image.url}}" class="h-6 w-6 rounded-full" alt="">
-                                <p>{{u}}</p>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <div class="border-l-[1px] border-[#ccc2] p-2 px-3 capitalize">
-                    {{i.type}}
-                </div>
-            </div>
-        {% endfor %}        
-    </div>
+<div class="h-full" id="issue-table">
+    {% include 'component/table.html' %}
 </div>

@@ -13,4 +13,6 @@ urlpatterns = [
     path("kanban_change/",views.kanban_change),
     path("view_issue/<int:issue_id>/",views.view_issue),
     path("change_issue_details/<int:issue_id>/",views.change_detail),
+    path("board_search/",views.board_search),
+    path("table_search/",views.table_search),
 ]

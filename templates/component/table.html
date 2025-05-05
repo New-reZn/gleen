@@ -1,0 +1,58 @@
+<div class="flex flex-col h-full">
+    <div class="border-y-[1px] border-[#ccc2] grid grid-cols-5">
+        <div class="border-r-[1px] border-[#ccc2] p-2 px-3 text-lg font-light">
+            Title
+        </div>
+        <div class="border-x-[1px] border-[#ccc2] p-2 px-3 text-lg font-light">
+            Assignees
+        </div>
+        <div class="border-x-[1px] border-[#ccc2] p-2 px-3 text-lg font-light">
+            Status
+        </div>
+        <div class="border-x-[1px] border-[#ccc2] p-2 px-3 text-lg font-light">
+            Reporters
+        </div>
+        <div class="border-l-[1px] border-[#ccc2] p-2 px-3 text-lg font-light">
+            Type
+        </div>
+    </div>
+    <div class="grow bg-base-300 rounded-b-box overflow-x-auto">
+        {% for issue in issues %}
+            <div class="border-y-[1px] border-[#ccc2] grid grid-cols-5">
+                <div class="border-r-[1px] border-[#ccc2] p-2 px-3 capitalize">
+                    {{issue}}
+                </div>
+                <div class="border-x-[1px] flex flex-col gap-2 border-[#ccc2] p-2 px-3">
+                    <div class="flex gap-2 w-fit p-2 pl-2 pr-6 drop-shadow-sm bg-base-200 rounded-lg capitalize">
+                        <img src="{{issue.creator.image.url}}" class="h-6 w-6 rounded-full" >
+                        <p>{{issue.creator}}</p>
+                    </div>
+                    {% for assignee in issue.assignees.all %}
+                        {% if not assignee.is_reporter and assignee != issue.creator %}
+                                <div class="flex gap-2 w-fit p-2 pl-2 pr-6 drop-shadow-sm bg-base-200 rounded-lg capitalize">
+                                    <img src="{{assignee.image.url}}" class="h-6 w-6 rounded-full" alt="">
+                                    <p>{{assignee}}</p>
+                                </div>
+                            {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="border-x-[1px] border-[#ccc2] p-2 px-3 capitalize">
+                    {{issue.status}}
+                </div>
+                <div class="border-x-[1px] border-[#ccc2] p-2 px-3 flex flex-col gap-2">
+                    {% for assignee in issue.assignees.all %}
+                        {% if assignee.is_reporter %}
+                            <div class="flex gap-2 w-fit p-2 pl-2 pr-6 drop-shadow-sm bg-base-200 rounded-lg capitalize">
+                                <img src="{{assignee.image.url}}" class="h-6 w-6 rounded-full" alt="">
+                                <p>{{assignee}}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="border-l-[1px] border-[#ccc2] p-2 px-3 capitalize">
+                    {{issue.type}}
+                </div>
+            </div>
+        {% endfor %}        
+    </div>
+</div>

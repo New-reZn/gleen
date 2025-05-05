@@ -1,6 +1,6 @@
 {% load static %}
 <div class="grid p-4 gap-2 w-full pb-3">
-    <form hx-post="/" hx-swap="innerHTML" hx-target="#board"  class="flex gap-3">
+    <form hx-post="/board_search/" hx-swap="innerHTML" hx-target="#board"  class="flex gap-3">
         {% csrf_token %}
         <label class="input grow">
             <img src="{% static 'img/filter.svg' %}" height="24px" width="24px" alt="search bar" > 

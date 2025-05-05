@@ -7,7 +7,7 @@
             {% csrf_token %}
             <label class="input grow">
                 <img src="{% static 'img/filter.svg' %}" height="24px" width="24px" alt="search bar" > 
-                <input name="search" type="search" required placeholder="Search"/>
+                <input name="search" id="graph_search" type="search" required placeholder="Search"/>
             </label>
             <button type="submit"  class="btn bg-success border border-success-content">Find</button>
         </form>
@@ -17,12 +17,13 @@
                 hx-post="/create_chart/" 
                 hx-swap="innerHTML" 
                 hx-target="#graph-component"
+                hx-include="#graph_search"
             >
                 {% csrf_token %}
                 <div class="">
                     <input id="2w-btn"  class="hidden peer" type="radio" name="time" value="2w"  
                     hx-trigger="click" 
-                    hx-include="[name='search']"
+                    hx-include="#graph_search"
                     hx-post="/create_chart/"
                     >
                     <label for="2w-btn" class="btn text-xs font-normal shadow-none peer-checked:invert bg-base-300">
@@ -32,7 +33,7 @@
                 <div class="">
                     <input id="1m-btn"  class="hidden peer" type="radio" name="time" value="1m" checked 
                     hx-trigger="click" 
-                    hx-include="[name='search']"
+                    hx-include="#graph_search"
                     hx-post="/create_chart/"
                     >
                     <label for="1m-btn" class="btn text-xs font-normal shadow-none peer-checked:invert bg-base-300">
@@ -42,7 +43,7 @@
                 <div class="">
                     <input id="3m-btn" class="hidden peer" type="radio" name="time" value="3m"  
                     hx-trigger="click" 
-                    hx-include="[name='search']"
+                    hx-include="#graph_search"
                     hx-post="/create_chart/"
                     >
                     <label for="3m-btn" class="btn text-xs font-normal shadow-none peer-checked:invert bg-base-300">
@@ -52,7 +53,7 @@
                 <div class="">
                     <input id="max-date-btn"  class="hidden peer" type="radio" name="time" value="MAX" 
                     hx-trigger="click" 
-                    hx-include="[name='search']"
+                    hx-include="#graph_search"
                     hx-post="/create_chart/"
                     >
                     <label for="max-date-btn" class="btn text-xs font-normal shadow-none peer-checked:invert bg-base-300">
