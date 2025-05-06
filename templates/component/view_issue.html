@@ -164,8 +164,16 @@
                                 <p>{{data.creator}}</p>
                                 <p>{{data.updated_on|date:"d-m-Y"}}</p>
                             </div>
-                            <div class="p-2">
-                                {{data.comment}}
+                            <div class="p-2 flex flex-col">
+                                <p>{{data.comment}}</p>
+                                <div class="gap-2 grid pt-1">
+                                    {% for file in data.files_set.all %}
+                                        <div class="btn border border-neutral bg-base-300 font-light text-sm flex w-fit items-center gap-1">
+                                            <img src="{% static 'img/save.svg' %}" alt="${files[i].name}">
+                                            <a href="{{file.upload.url}}" target="_blank" rel="noopener noreferrer">{{file}}</a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                     {% elif data.model_name == "activities" %}
@@ -229,7 +237,8 @@
             const template_image = template_comment.children[0].children[0]
             const template_name = template_comment.children[0].children[1]
             const template_time = template_comment.children[0].children[2]
-            const template_text = template_comment.children[1]
+            const template_text = template_comment.children[1].children[0]
+            template_comment.children[1].children[1].innerHTML="";
 
             template_image.src=usr_img
             template_name.innerText=usr_name

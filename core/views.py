@@ -33,7 +33,11 @@ def index(request):
         return render(request,"home.html",data)
     
     if cookies_current_plan != None:
-        current_plan=Plan.objects.get(id=cookies_current_plan)
+        current_plan=Plan.objects.filter(id=cookies_current_plan).first()
+        
+        if not current_plan:
+            return HttpResponse("wrong request")
+        
     else:
         current_plan=Plan.objects.latest('updated_on')
     
@@ -340,7 +344,10 @@ def change_plan(request):
     elif request.method=="POST":
         plan_id = request.POST['plan_id']    
         
-        plan=Plan.objects.get(id=plan_id)
+        plan=Plan.objects.filter(id=plan_id).first()
+        
+        if not plan:
+            return HttpResponse("wrong request")
         
         response=redirect(request.META.get('HTTP_REFERER', '/'))
         
@@ -360,7 +367,9 @@ def create_issue(request):
     if request.method=="GET" and request.htmx:
         cookies_current_plan=request.COOKIES.get("current_plan")
         if cookies_current_plan != None:
-            current_plan=Plan.objects.get(id=cookies_current_plan)
+            current_plan=Plan.objects.filter(id=cookies_current_plan).first()
+            if not current_plan:
+                return HttpResponse("wrong request")
         else:
             current_plan=Plan.objects.latest('updated_on')
         
@@ -390,7 +399,10 @@ def create_issue(request):
         cookies_current_plan=request.COOKIES.get("current_plan")
         
         if cookies_current_plan != None:
-            current_plan=Plan.objects.get(id=cookies_current_plan)
+            current_plan=Plan.objects.filter(id=cookies_current_plan).first()
+        
+            if not current_plan:
+                return HttpResponse("wrong request")
         else:
             return HttpResponse("The issue did not had a plan")
 
@@ -408,7 +420,9 @@ def create_issue(request):
         )
         
         for assingee_id in assignees_input:
-            assingee=User.objects.get(id=assingee_id)
+            assingee=User.objects.filter(id=assingee_id).first()
+            if not assingee:
+                return HttpResponse("wrong request")
             issue.assignees.add(assingee)
             
         
@@ -449,7 +463,10 @@ def create_chart(request):
     cookies_current_plan=request.COOKIES.get("current_plan")
     
     if cookies_current_plan != None:
-        current_plan=Plan.objects.get(id=cookies_current_plan)
+        current_plan=Plan.objects.filter(id=cookies_current_plan).first()
+        
+        if not current_plan:
+            return HttpResponse("wrong request")
     else:
         return HttpResponse("wrong request")
         
@@ -603,8 +620,14 @@ def kanban_change(request):
         status_id=request.POST.get("status")
         issue_id=request.POST.get("latest_issue")
         
-        status=Status.objects.get(pk=status_id)
-        issue=Issues.objects.get(pk=issue_id)
+        status=Status.objects.filter(id=status_id).first()
+        
+        if not status:
+            return HttpResponse("wrong request")
+        
+        issue=Issues.objects.filter(id=issue_id).first()
+        if not issue:
+            return HttpResponse("wrong request")
         
         issue.status=status
         issue.save(updater=request.user)
@@ -617,11 +640,18 @@ def view_issue(request,issue_id):
     if request.method=="GET":
         cookies_current_plan=request.COOKIES.get("current_plan")
         if cookies_current_plan != None:
-            current_plan=Plan.objects.get(id=cookies_current_plan)
+            current_plan=Plan.objects.filter(id=cookies_current_plan).first()
+            
+            if not current_plan:
+                return HttpResponse("wrong request")
+            
         else:
             current_plan=Plan.objects.latest('updated_on')
         
-        issue=Issues.objects.get(id=issue_id)
+        issue=Issues.objects.filter(id=issue_id).first()
+        
+        if not issue:
+            return HttpResponse("wrong request")
         
         comments=Comment.objects.filter(issue=issue)
         logs=Activities.objects.filter(issue=issue)
@@ -652,8 +682,10 @@ def view_issue(request,issue_id):
     elif request.method=="POST" :
         comment=request.POST.get("comment")
 
-        issue=Issues.objects.filter(id=issue_id)
+        issue=Issues.objects.filter(id=issue_id).first()
         
+        if not issue:
+            return HttpResponse("failed to comment")
         
         Comment.objects.create(
             creator=request.user,
@@ -677,7 +709,7 @@ def change_detail(request,issue_id):
         type=Types.objects.filter(name=type).first()
         status=Status.objects.filter(name=status).first()
         
-        if not issue or not priority or not status or type:
+        if not issue or not priority or not status or not type:
             return redirect("/")
         
         issue.assignees.clear()
@@ -689,6 +721,7 @@ def change_detail(request,issue_id):
                 return redirect("/")
             issue.assignees.add(assignee)
             
+        print("here",priority)
         issue.priority=priority
         issue.type=type
         issue.status=status

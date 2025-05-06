@@ -29,9 +29,7 @@
                 <div class="card flex flex-col gap-1 bg-base-200 rounded-xl p-2 px-3 cursor-grab issue-draggable" draggable="true" id="issue-{{issue.id}}">
                     <div class="flex justify-between items-start">
                         <div class="flex items-center gap-2">
-                            <div class="w-4 h-4 rounded-full border-2 overflow-hidden" style="border-color: {{issue.type.color}};">
-                                <div class="w-full h-full opacity-50" style="background-color: {{issue.type.color}};"></div>
-                            </div>
+                            <div class="w-4 h-4 rounded-full overflow-hidden" style="background-color: {{issue.type.color}};"></div>
                             <p class="text-sm">{{issue.name}} #{{issue.id}} </p>
                         </div>
                         
