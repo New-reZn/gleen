@@ -59,11 +59,12 @@ class Issues(models.Model):
     
     def save(self, *args, **kwargs):
         
+        updater = kwargs.pop('updater', None)
+        
         if not self.pk:
             super().save(*args, **kwargs)
             return
             
-        updater = kwargs.pop('updater', None)
         
         og_issue = Issues.objects.get(pk=self.pk)
         

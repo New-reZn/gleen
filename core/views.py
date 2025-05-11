@@ -265,7 +265,7 @@ def create_plan(request):
             new_types_data = [type for type in types_data if type["name"] in new_types_names]
         
             priorities_objects = [
-                Status(
+                Priority(
                     creator=priority["creator"],
                     name=priority["name"],
                     color=priority["color"],
@@ -285,7 +285,7 @@ def create_plan(request):
             ]
             
             type_objects = [
-                Status(
+                Types(
                     creator=type["creator"],
                     name=type["name"],
                     color=type["color"],
@@ -299,6 +299,7 @@ def create_plan(request):
             Types.objects.bulk_create(type_objects)
             
             for priority_object in priorities_objects:
+                print(priority_object,priority_object.plan)
                 priority_object.plan.add(plan)
                 
             for status_object in status_objects:
@@ -430,7 +431,6 @@ def create_issue(request):
             default_status=current_plan.status_set.all().order_by('created_on').first()
             
         issue.status=default_status
-        ChartObject.objects.create(plan=current_plan,status=default_status)
         
         if default_priority:
             issue.priority=default_priority
@@ -439,6 +439,7 @@ def create_issue(request):
             issue.type=default_type
             
         issue.save(updater=request.user)
+        ChartObject.objects.create(plan=current_plan,status=default_status)
         
         comment=Comment.objects.create(
             creator=request.user,
@@ -753,3 +754,14 @@ def table_search(request):
             issues=Issues.objects.filter(name__icontains=text)
         
         return render(request,"component/table.html",{"issues":issues})
+
+def setting(request):
+    
+    config=config=GlobalSettings.objects.first()
+    
+    return render(request,"setting.html",{
+        "title":f"{config.name}:Settings",
+        "icon":config.image.url,
+        "config":config,
+        "users":User.objects.all(),
+    })
