@@ -22,14 +22,14 @@ def index(request):
 
 def registerOrg(request):
     if not (request.POST and request.htmx):
-        return HttpResponse("<p>😈</p>")
+        return HttpResponse("<p>wrong request</p>")
     
     name = request.POST.get('name')
     goal = request.POST.get('goal')        
     image = request.FILES.get('img')
     
     if not (name and  goal):
-        return HttpResponse("<p>😈</p>")
+        return HttpResponse("<p>wrong request</p>")
         
     full_path ="global/logo.svg"
     if image:

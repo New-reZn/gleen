@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django_htmx',
     'channels',
     'setup',
-    'core'
+    'core',
+    'configurations',
 ]
 
 MIDDLEWARE = [

@@ -1,8 +1,8 @@
 {% load static %}
 
-<label for="{{ imageInputId }}" class="bg-accent p-4 relative rounded-full cursor-pointer overflow-hidden">
-    <img src="{% static 'img/camera.svg' %}" alt="image upload" class="">
-    <img src="" alt="image upload" class="absolute w-full h-full bg-primary top-0 left-0 hidden" id="{{ imagePreviewId }}">
+<label for="{{ imageInputId }}" class=" {{ extraStyle | default:""}} bg-accent p-4 relative rounded-full cursor-pointer overflow-hidden">
+    <img src="{% static 'img/camera.svg' %}" alt="image upload" class=" {{ size | default:""}}">
+    <img src="{{ previewImage | default:"" }}" alt="image upload" class="absolute w-full h-full bg-primary top-0 left-0 {% if not previewImage %} hidden {% endif %}" id="{{ imagePreviewId }}">
 </label>
 <input id="{{ imageInputId }}" name="img" type="file" accept="image/*" placeholder="What is organization's goal?" class="hidden absolute outline-none"/>
 

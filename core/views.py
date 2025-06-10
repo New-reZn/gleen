@@ -12,7 +12,6 @@ from django.conf import settings
 from django.db.models import Count
 from datetime import timedelta
 import datetime
-import copy
 
 # Create your views here.
 
@@ -137,8 +136,6 @@ def create_plan(request):
         
         plan=Plan.objects.create(creator=request.user,name=name,desc=desc)
         plan.save()
-        
-        #todo:create default priorities ,status and types for plans , using get_or_create
         
         priorities_data=[
             {
@@ -434,9 +431,19 @@ def create_issue(request):
         
         if default_priority:
             issue.priority=default_priority
+        else:
+            try:
+                issue.priority=Priority.objects.get(name="Medium")
+            except:
+                issue.priority=Priority.objects.first()
         
         if default_type:
             issue.type=default_type
+        else:
+            try:
+                issue.type=Types.objects.get(name="enhancement")
+            except:
+                issue.type=Types.objects.first()
             
         issue.save(updater=request.user)
         ChartObject.objects.create(plan=current_plan,status=default_status)
@@ -754,14 +761,3 @@ def table_search(request):
             issues=Issues.objects.filter(name__icontains=text)
         
         return render(request,"component/table.html",{"issues":issues})
-
-def setting(request):
-    
-    config=config=GlobalSettings.objects.first()
-    
-    return render(request,"setting.html",{
-        "title":f"{config.name}:Settings",
-        "icon":config.image.url,
-        "config":config,
-        "users":User.objects.all(),
-    })
