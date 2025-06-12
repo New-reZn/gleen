@@ -31,14 +31,13 @@ def index(request):
         
         return render(request,"home.html",data)
     
-    if cookies_current_plan != None:
+    if cookies_current_plan == None:
+        current_plan=Plan.objects.latest('updated_on')
+    else:
         current_plan=Plan.objects.filter(id=cookies_current_plan).first()
         
         if not current_plan:
-            return HttpResponse("wrong request")
-        
-    else:
-        current_plan=Plan.objects.latest('updated_on')
+            current_plan=Plan.objects.latest('updated_on')
     
     issues=current_plan.issues_set.all()
     ChartObjects=current_plan.chartobject_set.all()
@@ -361,7 +360,7 @@ def change_plan(request):
         return response
     
 @admin_privilege
-def create_issue(request):
+def create_issue(request,status_id=None):
     if request.method=="GET" and request.htmx:
         cookies_current_plan=request.COOKIES.get("current_plan")
         if cookies_current_plan != None:
@@ -371,12 +370,17 @@ def create_issue(request):
         else:
             current_plan=Plan.objects.latest('updated_on')
         
+        status=get_object_or_none(current_plan.status_set,id=status_id)
+        if status==None:
+            status=current_plan.status_set.first()
+        
         data={
             "plan":current_plan,
             "assignees":User.objects.all(),
             "types":current_plan.types_set.all(),
             "priorities":current_plan.priority_set.all(),
-            "status":current_plan.status_set.all(),      
+            "status":current_plan.status_set.all(),
+            "current_status":status.id      
         }
         
         return render(request,"component/create_issue.html",data)
@@ -404,11 +408,14 @@ def create_issue(request):
         else:
             return HttpResponse("The issue did not had a plan")
 
-        default_status=get_object_or_none(Status,name="Todo")
+        if status_id :
+            default_status=get_object_or_none(current_plan.status_set,id=status_id)
+        else:
+            default_status=get_object_or_none(current_plan.status_set,name="Todo")
         
-        default_priority=get_object_or_none(Priority,name=priority_input)
+        default_priority=get_object_or_none(current_plan.priority_set,name=priority_input)
         
-        default_type=get_object_or_none(Types,name=type_input)
+        default_type=get_object_or_none(current_plan.types_set,name=type_input)
         
         issue = Issues(
             creator=request.user,
@@ -433,17 +440,17 @@ def create_issue(request):
             issue.priority=default_priority
         else:
             try:
-                issue.priority=Priority.objects.get(name="Medium")
+                issue.priority=current_plan.priority_set.get(name="Medium")
             except:
-                issue.priority=Priority.objects.first()
+                issue.priority=current_plan.priority_set.first()
         
         if default_type:
             issue.type=default_type
         else:
             try:
-                issue.type=Types.objects.get(name="enhancement")
+                issue.type=current_plan.types_set.get(name="enhancement")
             except:
-                issue.type=Types.objects.first()
+                issue.type=current_plan.types_set.first()
             
         issue.save(updater=request.user)
         ChartObject.objects.create(plan=current_plan,status=default_status)

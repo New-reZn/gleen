@@ -6,6 +6,7 @@
       "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
+    --color-red-500: oklch(0.637 0.237 25.331);
     --color-red-600: oklch(0.577 0.245 27.325);
     --color-neutral-500: oklch(0.556 0 0);
     --color-black: #000;
@@ -29,6 +30,7 @@
     --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
     --radius-md: 0.375rem;
     --radius-lg: 0.5rem;
     --radius-xl: 0.75rem;
@@ -635,9 +637,6 @@
         isolation: isolate;
       }
     }
-  }
-  .visible {
-    visibility: visible;
   }
   .toggle {
     border: var(--border) solid currentColor;
@@ -1362,9 +1361,6 @@
   .hidden {
     display: none;
   }
-  .inline-block {
-    display: inline-block;
-  }
   .table {
     display: table;
   }
@@ -1443,6 +1439,9 @@
   .w-36 {
     width: calc(var(--spacing) * 36);
   }
+  .w-44 {
+    width: calc(var(--spacing) * 44);
+  }
   .w-52 {
     width: calc(var(--spacing) * 52);
   }
@@ -1499,6 +1498,10 @@
   }
   .grow {
     flex-grow: 1;
+  }
+  .-translate-x-full {
+    --tw-translate-x: -100%;
+    translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .translate-x-1 {
     --tw-translate-x: calc(var(--spacing) * 1);
@@ -1708,6 +1711,9 @@
   .rounded-2xl {
     border-radius: var(--radius-2xl);
   }
+  .rounded-\[10px\] {
+    border-radius: 10px;
+  }
   .rounded-box {
     border-radius: var(--radius-box);
   }
@@ -1826,6 +1832,9 @@
   }
   .bg-transparent {
     background-color: transparent;
+  }
+  .bg-white {
+    background-color: var(--color-white);
   }
   .p-0 {
     padding: calc(var(--spacing) * 0);
@@ -1967,6 +1976,10 @@
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
   }
+  .font-extrabold {
+    --tw-font-weight: var(--font-weight-extrabold);
+    font-weight: var(--font-weight-extrabold);
+  }
   .font-light {
     --tw-font-weight: var(--font-weight-light);
     font-weight: var(--font-weight-light);
@@ -1982,8 +1995,14 @@
   .break-words {
     overflow-wrap: break-word;
   }
+  .text-black {
+    color: var(--color-black);
+  }
   .text-neutral {
     color: var(--color-neutral);
+  }
+  .text-red-500 {
+    color: var(--color-red-500);
   }
   .text-red-600 {
     color: var(--color-red-600);
@@ -2140,12 +2159,32 @@
       }
     }
   }
+  .hover\:bg-red-500 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-red-500);
+      }
+    }
+  }
+  .hover\:text-white {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-white);
+      }
+    }
+  }
   .hover\:brightness-200 {
     &:hover {
       @media (hover: hover) {
         --tw-brightness: brightness(200%);
         filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
       }
+    }
+  }
+  .active\:translate-y-\[1px\] {
+    &:active {
+      --tw-translate-y: 1px;
+      translate: var(--tw-translate-x) var(--tw-translate-y);
     }
   }
   .active\:brightness-110 {

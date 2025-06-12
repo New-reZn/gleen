@@ -9,6 +9,7 @@ urlpatterns = [
     path("create_plan/",views.create_plan),
     path("change_plan/",views.change_plan),
     path("create_issue/",views.create_issue),
+    path("create_issue/<int:status_id>/",views.create_issue),
     path("create_chart/",views.create_chart),
     path("kanban_change/",views.kanban_change),
     path("view_issue/<int:issue_id>/",views.view_issue),

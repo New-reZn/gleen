@@ -1,0 +1,41 @@
+{% extends "component/base_popup.html" %}
+
+{% load static %}
+{% block dialog %}
+
+<div class="flex justify-between items-center border-b border-neutral p-2 pl-4 w-full">
+    <div class="flex gap-2">
+        <img src="{% static 'img/alert-triangle.svg' %}" class="group-hover:brightness-50" alt="close modal?" height="24px" width="24px">
+        <p class="text-lg capitalize">Confirm {{type}} Deletion !</p>
+    </div>
+        
+    <form method="dialog">
+        <button type="submit" class="bg-base-200 group m-1 p-1 rounded-full hover:brightness-200 cursor-pointer">
+            <img src="{% static 'img/cross.svg' %}" class="group-hover:brightness-50" alt="close modal?" height="20px" width="20px">
+        </button>
+    </form>
+</div>
+
+<div class="p-4 space-y-4">
+    <div class="space-y-2">
+        <p>Are you sure you want to delete {{type}} <span class="font-extrabold">"{{object}}"</span>?</p>
+        <p class="text-neutral">Details: {{object.desc}}</p>
+    </div>
+    <div class="flex gap-4">
+        <form method="dialog" class="w-full">
+            <button type="submit" class="w-full cursor-pointer bg-base-100 hover:bg-base-200 border border-neutral active:translate-y-[1px] p-2 rounded-box drop-shadow-md">
+                Cancel
+            </button>
+        </form>
+
+        <form hx-post="{{deletion_url}}" hx-swap="none" hx-on::after-request="window.location.reload()"  class="w-full">
+            {% csrf_token %}
+            <button type="submit" class="w-full cursor-pointer bg-white text-black hover:text-white hover:bg-red-500 active:translate-y-[1px] p-2 rounded-box drop-shadow-md capitalize">
+                Delete {{type}}
+            </button>
+        </form>
+        
+    </div>
+</div>
+
+{% endblock dialog %}

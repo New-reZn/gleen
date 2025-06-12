@@ -40,10 +40,12 @@ def gleen_authenticate(view_func):
 def htmx_required(view_func):
     def wrapper(request, *args, **kwargs):
         
+        if not request.user.is_authenticated:
+            return HttpResponse("<p>invalid call</p>")
+        
         if request.htmx:
             return view_func(request, *args, **kwargs)
-
-        if not request.user.is_authenticated:
+        else:
             return HttpResponse("<p>invalid call</p>")
         
     return wrapper

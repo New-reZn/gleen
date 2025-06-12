@@ -1,0 +1,36 @@
+{% load static %}
+{% for plan in plans %}
+    <div class="flex items-center justify-between border-t border-neutral p-4 relative">
+        <div class="">
+            <p>{{plan.name}}</p>
+            <p class="text-sm text-neutral">{{plan.desc}}</p>
+        </div>
+        <div class="flex gap-2 items-center">
+            <p class="text-sm">{{plan.issues_set.count}} issues</p>
+            <label class="cursor-pointer hover:bg-base-100 p-2  rounded-full shadow-none relative"  type="button" aria-label="plan options">
+                <svg width="16" height="16" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.20039 12.5001C7.20039 13.8256 6.12587 14.9001 4.80039 14.9001C3.47491 14.9001 2.40039 13.8256 2.40039 12.5001C2.40039 11.1746 3.47491 10.1001 4.80039 10.1001C6.12587 10.1001 7.20039 11.1746 7.20039 12.5001Z" stroke="white" stroke-width="2"/>
+                    <path d="M14.4004 12.5001C14.4004 13.8256 13.3259 14.9001 12.0004 14.9001C10.6749 14.9001 9.60039 13.8256 9.60039 12.5001C9.60039 11.1746 10.6749 10.1001 12.0004 10.1001C13.3259 10.1001 14.4004 11.1746 14.4004 12.5001Z" stroke="white" stroke-width="2"/>
+                    <path d="M21.6004 12.5001C21.6004 13.8256 20.5259 14.9001 19.2004 14.9001C17.8749 14.9001 16.8004 13.8256 16.8004 12.5001C16.8004 11.1746 17.8749 10.1001 19.2004 10.1001C20.5259 10.1001 21.6004 11.1746 21.6004 12.5001Z" stroke="white" stroke-width="2"/>
+                </svg>
+                <input class="peer absolute top-0 left-0 hidden h-6 w-6"  checked type="checkbox"/>
+                <dialog class="absolute -translate-x-full top-full card bg-base-100 border border-neutral p-2 peer-checked:hidden z-50 w-44 space-y-1" open>
+                    <button type="button" class="flex p-2 rounded-[10px] cursor-pointer gap-2 active:translate-y-[1px] bg-base-100 hover:bg-base-200 justify-start shadow-none"
+                            hx-target="#top-layer" 
+                            hx-swap="innerHTML"
+                            hx-get="/plan_modification/{{plan.id}}/">
+                        <img src="{% static 'img/modify.svg' %}" alt="delete button" height="18px" width="18px">
+                        <p>Modify Plan</p>
+                    </button>
+                    <button type="button" class="flex p-2 rounded-[10px] cursor-pointer gap-2 text-red-500 active:translate-y-[1px] bg-base-100 hover:bg-base-200 justify-start shadow-none"
+                            hx-target="#top-layer" 
+                            hx-swap="innerHTML"
+                            hx-get="/plan_deletion/{{plan.id}}/" >
+                        <img src="{% static 'img/trashcan-red.svg' %}" alt="delete button" height="18px" width="18px">
+                        <p>Delete Plan</p>
+                    </button>
+                </dialog>
+            </label>
+        </div>
+    </div>
+{% endfor %}

@@ -6,7 +6,7 @@
     <div class="p-4 min-w-64 hidden md:flex flex-col gap-7">
         <a href="/" class="flex items-center gap-2">
             <div class="btn">
-                <svg aria-hidden="true" focusable="false" class="octicon octicon-arrow-left Octicon-sc-9kayk9-0 route-title-module__Octicon--NtaO3" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" display="inline-block" overflow="visible" style="vertical-align: text-bottom;"><path d="M10.78 19.03a.75.75 0 0 1-1.06 0l-6.25-6.25a.75.75 0 0 1 0-1.06l6.25-6.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L5.81 11.5h14.44a.75.75 0 0 1 0 1.5H5.81l4.97 4.97a.75.75 0 0 1 0 1.06Z"></path></svg>
+                <img src="{% static 'img/arrow-left.svg' %}" alt="go back to home page button" width="18px" height="18px">
             </div>
             <p class="text-2xl">Settings</p>
         </a>
@@ -32,7 +32,7 @@
             <a href="/" class="flex items-center justify-between p-3 md:hidden">
                 <div class="flex items-center gap-2">
                     <div class="btn border border-neutral">
-                        <svg aria-hidden="true" focusable="false" class="octicon octicon-arrow-left Octicon-sc-9kayk9-0 route-title-module__Octicon--NtaO3" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" display="inline-block" overflow="visible" style="vertical-align: text-bottom;"><path d="M10.78 19.03a.75.75 0 0 1-1.06 0l-6.25-6.25a.75.75 0 0 1 0-1.06l6.25-6.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L5.81 11.5h14.44a.75.75 0 0 1 0 1.5H5.81l4.97 4.97a.75.75 0 0 1 0 1.06Z"></path></svg>
+                        <img src="{% static 'img/arrow-left.svg' %}" alt="go back to home page button" width="18px" height="18px">
                     </div>
                     <p class="text-2xl">Settings</p>
                 </div>
@@ -70,58 +70,61 @@
                         </div>
                         <div class="p-2">
                             <div class="rounded-box border border-neutral">
-                                <form hx-post="" hx-swap="innerHTML" hx-target=""  class="p-4 flex gap-3 items-center">
+                                <form class="p-4 flex gap-3 items-center" 
+                                    hx-post="/search_plans/" 
+                                    hx-swap="innerHTML" 
+                                    hx-target="#plans-table"
+                                >
                                     {% csrf_token %}
                                     <label class="input grow ">
                                         <img src="{% static 'img/filter.svg' %}" height="24px" width="24px" alt="search bar" > 
-                                        <input name="search" type="search" required placeholder="Search"/>
+                                        <input name="search" id="search-plans-table" type="search" placeholder="Search"/>
                                     </label>
                                     <button type="submit"  class="btn h-8 bg-success border border-success-content">Find</button>
                                 </form>
                                 <div class="flex items-center justify-between border-t border-neutral p-2 ">
-                                    <div class="">
-                                        <form class="text-sm flex items-center gap-2 p-2" hx-post=""  hx-swap="innerHTML" hx-target="">
-                                            <p>Sort by</p>
-                                            <div class="">
-                                                <input type="radio" class="peer hidden" id="SortByCreated" value="1" name="sort"/>
-                                                <label for="SortByCreated" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
-                                                    Date Created
-                                                </label>
-                                            </div>
-                                            <div class="">
-                                                <input type="radio" class="peer hidden" id="SortByUpdate" value="2" name="sort"/>
-                                                <label for="SortByUpdate" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
-                                                    Date Updated
-                                                </label>
-                                            </div>
-                                            <div class="">
-                                                <input type="radio" class="peer hidden" id="SortByName" value="3" name="sort"/>
-                                                <label for="SortByName" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
-                                                    Name
-                                                </label>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="">
-                                    {% for plan in plans %}
-                                        <div class="flex items-center justify-between border-t border-neutral p-4">
-                                            <div class="">
-                                                <p>{{plan.name}}</p>
-                                                <p class="text-sm text-neutral">{{plan.desc}}</p>
-                                            </div>
-                                            <div class="flex gap-2 items-center">
-                                                <p class="text-sm">{{plan.issues_set.count}} issues</p>
-                                                <button class="cursor-pointer hover:bg-base-100 p-2 py-4 rounded-box shadow-none"  type="button" aria-label="plan options">
-                                                    <svg width="16" height="16" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M7.20039 12.5001C7.20039 13.8256 6.12587 14.9001 4.80039 14.9001C3.47491 14.9001 2.40039 13.8256 2.40039 12.5001C2.40039 11.1746 3.47491 10.1001 4.80039 10.1001C6.12587 10.1001 7.20039 11.1746 7.20039 12.5001Z" stroke="white" stroke-width="2"/>
-                                                        <path d="M14.4004 12.5001C14.4004 13.8256 13.3259 14.9001 12.0004 14.9001C10.6749 14.9001 9.60039 13.8256 9.60039 12.5001C9.60039 11.1746 10.6749 10.1001 12.0004 10.1001C13.3259 10.1001 14.4004 11.1746 14.4004 12.5001Z" stroke="white" stroke-width="2"/>
-                                                        <path d="M21.6004 12.5001C21.6004 13.8256 20.5259 14.9001 19.2004 14.9001C17.8749 14.9001 16.8004 13.8256 16.8004 12.5001C16.8004 11.1746 17.8749 10.1001 19.2004 10.1001C20.5259 10.1001 21.6004 11.1746 21.6004 12.5001Z" stroke="white" stroke-width="2"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
+                                    <button class="btn bg-base-200 border-neutral border" 
+                                        type="button"
+                                        hx-target="#top-layer" 
+                                        hx-swap="innerHTML"
+                                        hx-get="/create_plan/" 
+                                    >
+                                        <img src="{% static 'img/add.svg' %}" alt="add" height="18px" width="18px">
+                                        <span>New Plan</span>
+                                    </button>
+                                    
+                                    <form class="text-sm flex items-center gap-2 p-2" 
+                                        hx-post="/sort_plan/" 
+                                        hx-trigger="change" 
+                                        hx-swap="innerHTML" 
+                                        hx-target="#plans-table"
+                                        hx-include="#search-plans-table"
+                                    >
+                                        {% csrf_token %}
+                                        <p>Sort by</p>
+                                        <div class="">
+                                            <input type="radio" class="peer hidden" id="SortByCreated" value="1" name="sort"/>
+                                            <label for="SortByCreated" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                                                Date Created
+                                            </label>
                                         </div>
-                                    {% endfor %}
+                                        <div class="">
+                                            <input type="radio" class="peer hidden" id="SortByUpdate" value="2" name="sort"/>
+                                            <label for="SortByUpdate" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                                                Date Updated
+                                            </label>
+                                        </div>
+                                        <div class="">
+                                            <input type="radio" class="peer hidden" id="SortByName" value="3" name="sort"/>
+                                            <label for="SortByName" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                                                Name
+                                            </label>
+                                        </div>
+                                    </form>
+                                    
+                                </div>
+                                <div id="plans-table">
+                                    {% include "component/plan_table.html" with plans=plans %}
                                 </div>
                             </div>
                         </div>
@@ -142,9 +145,7 @@
                                     <p class="text-neutral text-sm">Create a new user for organisation</p>
                                 </div>
                                 <label class="btn border border-neutral" aria-label="show user creation form" for="hide-user-form">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M16.7998 9.60002L11.9998 14.4L7.19981 9.60002" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
+                                    <img src="{% static 'img/chevron-down.svg' %}" alt="toggle user creation" width="24px" height="24px">
                                 </label>
                             </div>
                             <input type="checkbox" id="hide-user-form" class="hidden peer" checked>
@@ -263,11 +264,7 @@
                                                 {% endif %}
 
                                                 <button class="cursor-pointer hover:bg-base-100 p-2 py-4 rounded-box shadow-none"  type="button" aria-label="plan options">
-                                                    <svg width="16" height="16" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M7.20039 12.5001C7.20039 13.8256 6.12587 14.9001 4.80039 14.9001C3.47491 14.9001 2.40039 13.8256 2.40039 12.5001C2.40039 11.1746 3.47491 10.1001 4.80039 10.1001C6.12587 10.1001 7.20039 11.1746 7.20039 12.5001Z" stroke="white" stroke-width="2"/>
-                                                        <path d="M14.4004 12.5001C14.4004 13.8256 13.3259 14.9001 12.0004 14.9001C10.6749 14.9001 9.60039 13.8256 9.60039 12.5001C9.60039 11.1746 10.6749 10.1001 12.0004 10.1001C13.3259 10.1001 14.4004 11.1746 14.4004 12.5001Z" stroke="white" stroke-width="2"/>
-                                                        <path d="M21.6004 12.5001C21.6004 13.8256 20.5259 14.9001 19.2004 14.9001C17.8749 14.9001 16.8004 13.8256 16.8004 12.5001C16.8004 11.1746 17.8749 10.1001 19.2004 10.1001C20.5259 10.1001 21.6004 11.1746 21.6004 12.5001Z" stroke="white" stroke-width="2"/>
-                                                    </svg>
+                                                    <img src="{% static 'img/menu-dot.svg' %}" alt="open menu" width="16px" height="16px">
                                                 </button>
                                             </div>                                            
                                         
@@ -304,9 +301,7 @@
                                     <form class="text-sm flex items-center justify-between w-full" hx-post=""  hx-swap="innerHTML" hx-target="">
                                         <div class="relative">
                                             <label class="btn border border-neutral bg-base-100 p-1 px-4" type="button" for="dialog-plan-issue">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M16.7998 9.60002L11.9998 14.4L7.19981 9.60002" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
+                                                <img src="{% static 'img/chevron-down.svg' %}" alt="show plans" width="18px" height="18px">
                                                 <p>Plans</p>
                                             </label>
                                             <input type="checkbox" checked class="peer hidden" id="dialog-plan-issue">
@@ -362,9 +357,7 @@
                         <div class="flex justify-between items-center">
                             <p>Isssue - Priorities</p>
                             <label class="btn border border-neutral" aria-label="toggle priorities table" for="toggle-priority">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M16.7998 9.60002L11.9998 14.4L7.19981 9.60002" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                <img src="{% static 'img/chevron-down.svg' %}" alt="show-plans" width="24px" height="24px">
                             </label>
                         </div>
                         <input checked type="checkbox" id="toggle-priority"  class="hidden peer">
@@ -385,9 +378,7 @@
 
                                         <div class="relative">
                                             <label class="btn border border-neutral bg-base-100 p-1 px-4" type="button" for="dialog-plan-priority">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M16.7998 9.60002L11.9998 14.4L7.19981 9.60002" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
+                                                <img src="{% static 'img/chevron-down.svg' %}" alt="show plans" width="18px" height="18px">
                                                 <p>Plans</p>
                                             </label>
                                             <input type="checkbox" checked class="peer hidden" id="dialog-plan-priority">
@@ -445,9 +436,7 @@
                         <div class="flex justify-between items-center">
                             <p>Isssue - Types</p>
                             <label class="btn border border-neutral" aria-label="toggle types table" for="toggle-types">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M16.7998 9.60002L11.9998 14.4L7.19981 9.60002" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                <img src="{% static 'img/chevron-down.svg' %}" alt="show plans" width="24px" height="24px">
                             </label>
                         </div>
                         <input type="checkbox" checked id="toggle-types" class="hidden peer">
@@ -469,9 +458,7 @@
                                             
                                             <div class="relative">
                                                 <label class="btn border border-neutral bg-base-100 p-1 px-4" type="button" for="dialog-plan-type">
-                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M16.7998 9.60002L11.9998 14.4L7.19981 9.60002" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
+                                                    <img src="{% static 'img/chevron-down.svg' %}" alt="show plans" width="18px" height="18px">
                                                     <p>Plans</p>
                                                 </label>
                                                 <input type="checkbox" checked class="peer hidden" id="dialog-plan-type">

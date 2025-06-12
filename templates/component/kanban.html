@@ -85,7 +85,7 @@
             type="button"
             hx-target="#top-layer" 
             hx-swap="innerHTML"
-            hx-get="/create_issue/" 
+            hx-get="/create_issue/{{status.id}}/" 
         >
             <img src="{% static 'img/add.svg' %}" alt="button" width="18" height="18">
             <p>Add Issue</p>                

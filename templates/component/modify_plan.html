@@ -1,0 +1,27 @@
+{% extends "component/base_popup.html" %}
+
+{% load static %}
+{% block dialog %}
+
+<div class="flex justify-between items-center border-b border-neutral p-2 pl-4 min-w-96">
+    <p>Modify plan <span class="font-extrabold">#{{plan.id}}</span></p>
+    <form method="dialog">
+        <button type="submit" class="bg-base-200 group m-1 p-1 rounded-full hover:brightness-200 cursor-pointer">
+            <img src="{% static 'img/cross.svg' %}" class="group-hover:brightness-50" alt="" height="20px" width="20px">
+        </button>
+    </form>
+</div>
+
+<form action="/plan_modification/{{plan.id}}/" method="post" class="flex flex-col gap-4 p-4 min-w-96">
+    {% csrf_token %}
+    <label for="plan-name-create-modal" class="space-y-1.5"> 
+        <p>Title of plan</p>
+        <input class="w-full input border-neutral bg-base-400 text-base p-3 outline-none" name="plan_name" required value="{{plan.name}}" id="plan-name-create-modal" type="text" placeholder="Plan name..."/>
+    </label>
+    <label for="plan-desc-create-modal" class="space-y-1.5"> 
+        <p>Description of plan</p>
+        <textarea class="w-full h-48 textarea border-neutral text-base align-text-top p-2 px-3 min-h-6 resize-none outline-none min-w-full" name="plan_desc" required id="plan-desc-create-modal" type="text" placeholder="Write Description here...">{{plan.desc}}</textarea>
+    </label>
+    <button type="submit" class="text-lg btn bg-success border-success-content font-medium">Change Plan Details</button>
+</form>
+{% endblock dialog %}
