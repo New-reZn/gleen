@@ -59,7 +59,7 @@ def setup(request):
     
     GlobalSettings.objects.create(name=org_name,goal=org_goal,image=org_path).save()
     
-    full_path ="admins/logo.svg"
+    full_path ="admins/user.svg"
     
     if image:
         file_path = os.path.join('admins/', sanitize_filename(image.name))

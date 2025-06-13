@@ -1,8 +1,12 @@
 from django.shortcuts import redirect, render, HttpResponse
 from core.models import *
 from setup.models import GlobalSettings
-from gleen.helpers import admin_privilege,htmx_required,get_object_or_none
+from gleen.helpers import admin_privilege,htmx_required,get_object_or_none, sanitize_filename
 from django.db.models import Q
+from core.groups import *
+from django.core.files.base import ContentFile
+import os
+from django.core.files.storage import default_storage
 
 # Create your views here.
 
@@ -100,7 +104,6 @@ def delete_plan(request,plan_id):
       "type":"plan",
       "deletion_url":f"/plan_deletion/{plan.id}/"
     })
-    
 
 def update_plan(request,plan_id):
     if request.method=="POST" and request.user.is_admin:
@@ -123,5 +126,229 @@ def update_plan(request,plan_id):
     
     return render(request,"component/modify_plan.html",{
       "plan":plan,
+    })
+
+@htmx_required
+@admin_privilege
+def create_user(request):
+    if request.method=="POST":
+        image=request.FILES.get("img")
+        username=request.POST.get("username")
+        email=request.POST.get("email")
+        password=request.POST.get("password")
+        role=request.POST.get("role")        
+        
+        try:
+            if role=="1":
+                full_path ="admins/user.svg"
+                if image:
+                    file_path = os.path.join('admins/', sanitize_filename(image.name))
+                    full_path=default_storage.save(file_path, ContentFile(image.read()))
+                
+                user=User.objects.create_superuser(username=username,email=email,password=password,is_admin=True)
+                user.image = full_path
+                user.groups.add(Admins)
+                user.save()
+                
+            elif role=="2":
+                full_path ="devs/user.svg"
+                if image:
+                    file_path = os.path.join('devs/', sanitize_filename(image.name))
+                    full_path=default_storage.save(file_path, ContentFile(image.read()))
+                    
+                user=User.objects.create_user(username=username,password=password,email=email,is_developer=True)
+                user.image = full_path
+                user.groups.add(Developers)
+                user.save()
+                
+            else:
+                full_path ="reps/user.svg"
+                if image:
+                    file_path = os.path.join('reps/', sanitize_filename(image.name))
+                    full_path=default_storage.save(file_path, ContentFile(image.read()))
+                
+                user=User.objects.create_user(username=username,email=email,password=password,is_reporter=True)
+                user.image = full_path
+                user.groups.add(Reporters)
+                user.save()
+            
+            response = HttpResponse()
+            response["HX-Redirect"] = "/settings/"
+            return response
+        except Exception as e:
+            return HttpResponse(f"<p class='p-2'>{str(e)}</p>")
+
+@htmx_required
+def search_users(request):
+    if request.method=="POST":
+        search=request.POST['search'].strip()
+        
+        if search=="":
+            users=User.objects.all()
+        else:
+            users=User.objects.filter(Q(username__icontains=search)|Q(email__icontains=search))
+        
+        return render(request,"component/user_table.html",{"users":users})
+    else:
+        return HttpResponse("<p>wrong request</p>")
+    
+@htmx_required
+def sort_users(request):
+    if request.method=="POST":
+        search=request.POST["search"]
+        choices=request.POST.getlist("choices")
+        sort=request.POST['sort'].strip()
+        
+        role={
+            "Admin":False,
+            "Developer":False,
+            "Reporter":False
+        }
+        
+        for choice in choices:
+            if choice == "0":
+                role["Admin"] = True
+            elif choice == "1":
+                role["Developer"] = True
+            elif choice == "2":
+                role["Reporter"] = True
+        
+        if search=="":
+            users=User.objects.all()
+        else:  
+            users=User.objects.filter(Q(username__icontains=search)|Q(email__icontains=search))
+        
+        role_q = Q()
+        if role["Admin"]:
+            role_q |= Q(is_admin=True)
+        if role["Developer"]:
+            role_q |= Q(is_developer=True)
+        if role["Reporter"]:
+            role_q |= Q(is_reporter=True)
+            
+        if role_q:
+            users = users.filter(role_q)
+        
+        if sort=="1":
+            users=users.order_by("-last_login")
+        elif sort=="2":
+            users=users.order_by("date_joined")
+        elif sort=="3":
+            users=users.order_by("username")
+            
+        return render(request,"component/user_table.html",{"users":users})
+    else:
+        return HttpResponse("<p>wrong request</p>")
+    
+@htmx_required
+def delete_user(request,user_id):
+    
+    if request.method=="POST" and request.user.is_admin:
+        user=get_object_or_none(User,id=user_id)
+        if user:
+            user.delete()
+        return redirect("/settings/")
+    
+    user=get_object_or_none(User,id=user_id)
+    
+    if not user or not request.user.is_admin:
+        return redirect("/settings/")
+    
+    return render(request,"component/confirm_deletion.html",{
+      "object":user,
+      "type":"user",
+      "deletion_url":f"/user_deletion/{user.id}/"
+    })
+
+@htmx_required
+@admin_privilege
+def update_user(request,user_id):
+    
+    if request.method=="POST":
+        image=request.FILES.get("img")
+        username=request.POST.get("username")
+        email=request.POST.get("email")
+        password=request.POST.get("password")
+        role=request.POST.get("role")
+        
+        user=get_object_or_none(User,id=user_id)
+        
+        if username:
+            user.username = username.strip()
+        
+        if email:
+            user.email = email.strip()
+        
+        if password.strip():
+            user.set_password(password.strip()) 
+        
+        try:
+            if role=="1":
+                if image:
+                    if user.image and default_storage.exists(user.image.name):
+                        default_storage.delete(user.image.name)
+
+                    file_path = os.path.join('admins/', sanitize_filename(image.name))
+                    full_path = default_storage.save(file_path, ContentFile(image.read()))
+                    user.image = full_path
+                
+                user.is_admin=True
+                user.is_developer=False
+                user.is_reporter=False
+                user.groups.clear()
+                user.groups.add(Admins)
+                user.save()
+                
+            elif role=="2":
+                if image:
+                    if user.image and default_storage.exists(user.image.name):
+                        default_storage.delete(user.image.name)
+
+                    file_path = os.path.join('devs/', sanitize_filename(image.name))
+                    full_path = default_storage.save(file_path, ContentFile(image.read()))
+                    user.image = full_path
+                
+                user.is_admin=False
+                user.is_developer=True
+                user.is_reporter=False    
+                user.groups.clear()
+                user.groups.add(Developers)
+                user.save()
+                
+            else:
+                if image:
+                    if user.image and default_storage.exists(user.image.name):
+                        default_storage.delete(user.image.name)
+
+                    file_path = os.path.join('reps/', sanitize_filename(image.name))
+                    full_path = default_storage.save(file_path, ContentFile(image.read()))
+                    user.image = full_path
+
+                user.is_admin=False
+                user.is_developer=False
+                user.is_reporter=True
+                user.groups.clear()
+                user.groups.add(Reporters)
+                user.save()
+            
+            response = HttpResponse()
+            response["HX-Redirect"] = "/settings/"
+            return response
+        
+        except Exception as e:
+            return HttpResponse(f"<p class='p-2'>{str(e)}</p>")
+    
+    user=get_object_or_none(User,id=user_id)
+    
+        
+    if not user:
+        response = HttpResponse()
+        response["HX-Redirect"] = "/settings/"
+        return response
+
+    return render(request,"component/modify_user.html",{
+        "user":user,
+        "preview_id": f"user_img_modify_preview_{user.id}",
+        "input_id":   f"user_img_modify_input_{user.id}",
     })
     

@@ -1,0 +1,69 @@
+{% extends "component/base_popup.html" %}
+
+{% load static %}
+{% block dialog %}
+
+<div class="flex justify-between items-center border-b border-neutral p-2 pl-4 min-w-96 lg:min-w-[30rem]">
+    <p>Modify user <span class="font-extrabold">{{user.username}}</span></p>
+    <form method="dialog">
+        <button type="submit" class="bg-base-200 group m-1 p-1 rounded-full hover:brightness-200 cursor-pointer">
+            <img src="{% static 'img/cross.svg' %}" class="group-hover:brightness-50" alt="" height="20px" width="20px">
+        </button>
+    </form>
+</div>
+
+<form class="grid grid-cols-1 lg:grid-cols-2 p-4 w-full peer-checked:hidden"  autocomplete="off" enctype="multipart/form-data" hx-post="/user_modification/{{user.id}}/" hx-swap="none" hx-target="">
+    {% csrf_token %}
+    <div class="flex w-full items-center justify-center">
+        
+        {% include "component/image_btn.html" with size="h-16 w-16" extraStyle="p-8" previewImage=user.image.url imagePreviewId=preview_id imageInputId=input_id %}
+    
+    </div>
+    <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-1">
+            <p>Name</p> 
+            <label class="input grow w-full">
+                &#8204;
+                <input name="username" type="text" placeholder="&#8204;User&#8204; Name&#8204;" value="{{user.username}}"/>
+            </label>
+        </div>
+        <div class="flex flex-col gap-1">
+            <p>Email</p> 
+            <label class="input grow w-full">
+                &#8204;
+                <input name="email" type="email"  placeholder="&#8204;Email&#8204;@examplecom&#8204;" value="{{user.email}}"/>
+            </label>
+        </div>
+        <div class="flex flex-col gap-1">
+            <p>Password</p> 
+            <label class="input grow w-full">
+                &#8204;
+                <input name="password" type="password" placeholder="&#8204;User's&#8204; pass&#8204;word&#8204;" value="        "/>
+            </label>
+        </div>
+        <p>Role</p> 
+        <div class="flex gap-2 items-center">
+            <div class="">
+                <input type="radio" class="peer hidden" id="role-admin" required value="1" {% if user.is_admin %}checked{% endif %} name="role"/>
+                <label for="role-admin" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                    Admin
+                </label>
+            </div>
+            <div class="">
+                <input type="radio" class="peer hidden" id="role-dev" value="2" required name="role" {% if user.is_developer %}checked{% endif %}/>
+                <label for="role-dev" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                    Developer
+                </label>
+            </div>
+            <div class="">
+                <input type="radio" class="peer hidden" id="role-review" {% if user.is_reporter %}checked{% endif %} required value="3" name="role"/>
+                <label for="role-review" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                    Reviewer
+                </label>
+            </div>
+        </div>
+        <button type="submit"  class="mt-2 btn bg-success border border-success-content">Modify User Details</button>
+        <div class="bg-red-700 text-white rounded-box" id="error-user"></div>
+    </div>
+</form>
+{% endblock dialog %}

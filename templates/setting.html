@@ -149,7 +149,12 @@
                                 </label>
                             </div>
                             <input type="checkbox" id="hide-user-form" class="hidden peer" checked>
-                            <form class="grid grid-cols-2 w-full peer-checked:hidden" action="" autocomplete="off" method="post">
+                            <form class="grid grid-cols-2 w-full peer-checked:hidden"  autocomplete="off" 
+                                hx-post="/create_user/" 
+                                hw-swap="innerHTML" 
+                                hx-target="#error-user"
+                                >
+                                {% csrf_token %}
                                 <div class="flex w-full items-center justify-center">
                                     {% include "component/image_btn.html" with size="h-16 w-16" extraStyle="p-8" imagePreviewId="user_img_preview" imageInputId="user_img_input" %}
                                 </div>
@@ -158,45 +163,46 @@
                                         <p>Name</p> 
                                         <label class="input grow w-full">
                                             &#8204;
-                                            <input name="user-field-1" type="text" required placeholder="&#8204;User Name&#8204;"/>
+                                            <input name="username" type="text" required placeholder="&#8204;User&#8204; Name&#8204;" value=" "/>
                                         </label>
                                     </div>
                                     <div class="flex flex-col gap-1">
                                         <p>Email</p> 
                                         <label class="input grow w-full">
                                             &#8204;
-                                            <input name="user-field-2" type="email" required placeholder="&#8204;Email@examplecom&#8204;"/>
+                                            <input name="email" type="email" required placeholder="&#8204;Email&#8204;@examplecom&#8204;" value=" "/>
                                         </label>
                                     </div>
                                     <div class="flex flex-col gap-1">
                                         <p>Password</p> 
                                         <label class="input grow w-full">
                                             &#8204;
-                                            <input name="user-field-3" type="password" required placeholder="&#8204;User's password&#8204;"/>
+                                            <input name="password" type="password" required  placeholder="&#8204;User's&#8204; pass&#8204;word&#8204;" value=""/>
                                         </label>
                                     </div>
                                     <p>Role</p> 
                                     <div class="flex gap-2 items-center">
                                         <div class="">
-                                            <input type="radio" class="peer hidden" id="role-admin" value="1" name="role"/>
+                                            <input type="radio" class="peer hidden" id="role-admin" required value="1" name="role"/>
                                             <label for="role-admin" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
                                                 Admin
                                             </label>
                                         </div>
                                         <div class="">
-                                            <input type="radio" class="peer hidden" id="role-dev" value="2" name="role"/>
+                                            <input type="radio" class="peer hidden" id="role-dev" value="2" required name="role"/>
                                             <label for="role-dev" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
                                                 Developer
                                             </label>
                                         </div>
                                         <div class="">
-                                            <input type="radio" class="peer hidden" id="role-review" value="3" name="role"/>
+                                            <input type="radio" class="peer hidden" id="role-review" checked required value="3" name="role"/>
                                             <label for="role-review" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
                                                 Reviewer
                                             </label>
                                         </div>
                                     </div>
                                     <button type="submit"  class="mt-2 btn bg-success border border-success-content">Create User</button>
+                                    <div class="bg-red-700 text-white rounded-box" id="error-user"></div>
                                 </div>
                             </form>
                         {% endif %}
@@ -208,68 +214,98 @@
                         <div class="p-2">
                             <div class="border flex flex-col border-neutral rounded-box">
                                 <div class="p-2">
-                                    <form hx-post="" hx-swap="innerHTML" hx-target=""  class="flex gap-3 items-center justify-center">
+                                    <form hx-post="/search_users/" hx-swap="innerHTML" hx-target="#user-table"  class="flex gap-3 items-center justify-center">
                                         {% csrf_token %}
                                         <label class="input grow w-96">
                                             <img src="{% static 'img/filter.svg' %}" height="24px" width="24px" alt="search bar" > 
-                                            <input name="search" type="search" required placeholder="Search"/>
+                                            <input name="search" type="search" placeholder="Search" id="search-user-table"/>
                                         </label>
                                         <button type="submit"  class="btn h-8 bg-success border border-success-content">Find</button>
                                     </form>
                                 </div>
                                 <div class="flex items-center border-t border-neutral p-2">
+                                    <form class="text-sm w-full flex items-center justify-between"  
+                                        hx-post="/sort_user/" 
+                                        hx-trigger="change" 
+                                        hx-swap="innerHTML" 
+                                        hx-target="#user-table"
+                                        hx-include="#search-user-table"
+                                    >
+                                        {% csrf_token %}
+                                        <div class="base-200 rounded-box relative border border-neutral flex w-32">
 
-                                    <form class="text-sm flex items-center gap-2 p-2" hx-post=""  hx-swap="innerHTML" hx-target="">
-                                        <p>Sort by</p>
-                                        <div class="">
-                                            <input type="radio" class="peer hidden" id="SortByCreated-user" value="1" name="sort"/>
-                                            <label for="SortByCreated-user" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
-                                                Date Created
-                                            </label>
-                                        </div>
-                                        <div class="">
-                                            <input type="radio" class="peer hidden" id="SortByUpdate-user" value="2" name="sort"/>
-                                            <label for="SortByUpdate-user" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
-                                                Date Updated
-                                            </label>
-                                        </div>
-                                        <div class="">
-                                            <input type="radio" class="peer hidden" id="SortByName-user" value="3" name="sort"/>
-                                            <label for="SortByName-user" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
-                                                Name
-                                            </label>
+                                            <style>
+                                                .sortbyrole-output::before {
+                                                    content: "Select Role";
+                                                }
+    
+                                                .checkbox-container:has(#sortbyadmin:checked) ~ .sortbyrole-output::before {
+                                                    content: "Admin";
+                                                }
+    
+                                                .checkbox-container:has(#sortbydeveloper:checked) ~ .sortbyrole-output::before {
+                                                    content: "Developer";
+                                                }
+    
+                                                .checkbox-container:has(#sortbyreporter:checked) ~ .sortbyrole-output::before {
+                                                    content: "Reporter";
+                                                }
+                                            </style>
+                                            
+                                            <label class="w-full h-full absolute cursor-pointer" for="selectRole"></label>
+                                            <input type="checkbox" class="peer hidden" id="selectRole" checked>
+                                            
+                                            <dialog class="peer-checked:hidden checkbox-container absolute top-full p-2 card bg-base-200 shadow-md w-36 border border-neutral" open>
+                                                
+                                                <label class="flex gap-2 p-2 hover:bg-base-100 rounded-box cursor-pointer">
+                                                    <input type="checkbox" id="sortbyadmin" name="choices" value="0">
+                                                    <p>Admin</p>
+                                                </label>
+                                                
+                                                <label class="flex gap-2 p-2 hover:bg-base-100 rounded-box cursor-pointer">
+                                                    <input type="checkbox" id="sortbydeveloper" name="choices" value="1">
+                                                    <p>Developer</p>       
+                                                </label>
+                                                
+                                                <label  class="flex gap-2 p-2 hover:bg-base-100 rounded-box cursor-pointer">
+                                                    <input type="checkbox" id="sortbyreporter" name="choices" value="2">
+                                                    <p>Reporter</p>
+                                                </label>
+                                                
+                                            </dialog>
+
+                                            <div class="p-1"></div>
+                                            <img src="{% static 'img/chevron-down.svg' %}" alt="select role" width="18px" height="18px">
+                                            <div class="sortbyrole-output p-2"></div>
+                                            
+                                        </div>                                    
+
+                                        <div class="flex items-center gap-2 p-2">
+                                            <p>Sort by</p>
+                                            <div class="">
+                                                <input type="radio" class="peer hidden" id="SortByLogin-user" checked value="1" name="sort"/>
+                                                <label for="SortByLogin-user" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                                                    Last Login
+                                                </label>
+                                            </div>
+                                            <div class="">
+                                                <input type="radio" class="peer hidden" id="SortByCreated-user" value="2" name="sort"/>
+                                                <label for="SortByCreated-user" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                                                    Date Created
+                                                </label>
+                                            </div>
+                                            <div class="">
+                                                <input type="radio" class="peer hidden" id="SortByName-user" value="3" name="sort"/>
+                                                <label for="SortByName-user" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                                                    Name
+                                                </label>
+                                            </div>
                                         </div>
                                     </form>
                                 </div>
-                                <div class="">
-                                    {% for user in users%}
-                                        <div class="border-t border-neutral flex justify-between items-center p-2 px-4">
-                                            
-                                            <label class="flex gap-4 items-center">
-                                                <input type="checkbox" name="check-user-{{user.id}}" >
-                                                <img src="{{user.image.url}}" class="w-6 h-6 rounded-full " alt="" srcset="">
-                                                <div class="flex flex-col items-start gap-0">
-                                                    <p>{{user}}</p>
-                                                    <p class="test-xs text-neutral">{{ user.email | default:"example@email.com"}}</p>
-                                                </div>    
-                                            </label>
-    
-                                            <div class="flex gap-4 items-center">
-                                                {% if user.is_admin %}
-                                                    <p>Admin</p>
-                                                {% elif user.is_developer %}
-                                                    <p>Developer</p>
-                                                {% elif user.is_reporter %}
-                                                    <p>Reporter</p>
-                                                {% endif %}
 
-                                                <button class="cursor-pointer hover:bg-base-100 p-2 py-4 rounded-box shadow-none"  type="button" aria-label="plan options">
-                                                    <img src="{% static 'img/menu-dot.svg' %}" alt="open menu" width="16px" height="16px">
-                                                </button>
-                                            </div>                                            
-                                        
-                                        </div>    
-                                    {% endfor %}
+                                <div class="" id="user-table">
+                                    {% include "component/user_table.html" with users=users %}
                                 </div>
                             </div>
                         </div>
