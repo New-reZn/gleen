@@ -20,7 +20,7 @@ def setting(request):
         "config":config,
         "users":User.objects.all(),
         "plans":Plan.objects.all(),
-        "issues":Issues.objects.all(),
+        "statuses":Status.objects.all(),
         "priorities":Priority.objects.all(),
         "types":Types.objects.all(),
     })
@@ -273,10 +273,10 @@ def update_user(request,user_id):
         
         user=get_object_or_none(User,id=user_id)
         
-        if username:
+        if username and user.username!=username:
             user.username = username.strip()
         
-        if email:
+        if email and user.email!=email:
             user.email = email.strip()
         
         if password.strip():
@@ -351,4 +351,148 @@ def update_user(request,user_id):
         "preview_id": f"user_img_modify_preview_{user.id}",
         "input_id":   f"user_img_modify_input_{user.id}",
     })
+
+@htmx_required
+@admin_privilege
+def create_status(request):
     
+    if request.method=="POST":
+        name= request.POST["name"]
+        desc= request.POST["desc"]
+        color= request.POST["color"]
+        
+        plans= request.POST.getlist("plans")
+        creator = request.user
+        
+        
+        try:
+            
+            plans=Plan.objects.filter(id__in=plans)
+            
+            status=Status.objects.create(creator=creator,name=name,desc=desc,color=color)
+            
+            if plans:
+                status.plan.set(plans)
+                status.save()
+                
+            response = HttpResponse()
+            response["HX-Redirect"] = "/settings/"
+            return response
+        
+        except Exception as e:
+            return HttpResponse(f"<p class='p-2'>{str(e)}</p>")
+        
+    return render(request,"component/create_status.html",{"plans":Plan.objects.all()})
+
+@htmx_required
+def search_status(request):
+    if request.method=="POST":
+        search=request.POST['search'].strip()
+        
+        if search=="":
+            status=Status.objects.all()
+        else:
+            status=Status.objects.filter(Q(name__icontains=search)|Q(desc__icontains=search))
+        
+        return render(request,"component/status_table.html",{"statuses":status})
+    else:
+        return HttpResponse("<p>wrong request</p>")
+    
+@htmx_required
+def sort_status(request):
+    if request.method=="POST":
+        search=request.POST["search"]
+        choices=request.POST.getlist("choices-plan-status")
+        sort=request.POST['sort'].strip()
+        
+        plans=Plan.objects.filter(id__in=choices)
+        
+        status = Status.objects.all()
+
+        if search:
+            status = status.filter(Q(name__icontains=search) | Q(desc__icontains=search))
+
+        if plans:
+            status = status.filter(plan__id__in=choices).distinct()
+        
+        if sort=="1":
+            status=status.order_by("created_on")
+        elif sort=="2":
+            status=status.order_by("updated_on")
+        elif sort=="3":
+            status=status.order_by("name")
+            
+        return render(request,"component/status_table.html",{"statuses":status})
+    else:
+        return HttpResponse("<p>wrong request</p>")
+    
+
+@htmx_required
+def delete_status(request,status_id):
+    
+    if request.method=="POST" and request.user.is_admin:
+        status=get_object_or_none(Status,id=status_id)
+        if status:
+            status.delete()
+        return redirect("/settings/")
+    
+    status=get_object_or_none(Status,id=status_id)
+    
+    if not status or not request.user.is_admin:
+        return redirect("/settings/")
+    
+    return render(request,"component/confirm_deletion.html",{
+      "object":status,
+      "type":"status",
+      "deletion_url":f"/status_deletion/{status.id}/"
+    })
+
+@htmx_required
+@admin_privilege
+def update_status(request,status_id):
+    
+    if request.method=="POST":
+        name= request.POST["name"]
+        desc= request.POST["desc"]
+        color= request.POST["color"]
+        
+        plans= request.POST.getlist("plans")
+        
+        status = get_object_or_none(Status,id=status_id)
+        
+        print(status)
+        if name and status.name!=name:
+            status.name = name.strip()
+        
+        if desc and status.desc!=desc:
+            status.desc = desc.strip()
+        
+        if color and status.color!=color:
+            status.color = color.strip() 
+        
+        try:
+            plans=Plan.objects.filter(id__in=plans)
+            
+            if plans:
+                status.plan.set(plans)
+                status.save()
+            
+            response = HttpResponse()
+            response["HX-Redirect"] = "/settings/"
+            return response
+        
+        except Exception as e:
+            return HttpResponse(f"<p class='p-2'>{str(e)}</p>")
+    
+    status=get_object_or_none(Status,id=status_id)
+    
+        
+    if not status:
+        response = HttpResponse()
+        response["HX-Redirect"] = "/settings/"
+        return response
+
+    return render(request,"component/modify_status.html",{
+        "status":status,
+        "plans":Plan.objects.all()
+    })

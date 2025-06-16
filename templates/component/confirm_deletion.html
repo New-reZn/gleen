@@ -30,7 +30,7 @@
 
         <form hx-post="{{deletion_url}}" hx-swap="none" hx-on::after-request="window.location.reload()"  class="w-full">
             {% csrf_token %}
-            <button type="submit" class="w-full cursor-pointer bg-white text-black hover:text-white hover:bg-red-500 active:translate-y-[1px] p-2 rounded-box drop-shadow-md capitalize">
+            <button type="submit" class="w-full cursor-pointer bg-white text-black hover:bg-red-500 active:translate-y-[1px] p-2 rounded-box drop-shadow-md capitalize">
                 Delete {{type}}
             </button>
         </form>
