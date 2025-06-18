@@ -348,11 +348,11 @@
                                         hx-include="#search-status-table">
                                         {% csrf_token %}
                                         <div class="relative">
-                                            <label class="btn border border-neutral bg-base-100 p-0 px-4" type="button" for="dialog-plan-issue">
+                                            <label class="btn border border-neutral bg-base-100 p-0 px-4" type="button" for="dialog-plan-status">
                                                 <img src="{% static 'img/chevron-down.svg' %}" alt="show plans" width="18px" height="18px">
                                                 <p>Plans</p>
                                             </label>
-                                            <input type="checkbox" checked class="peer hidden" id="dialog-plan-issue">
+                                            <input type="checkbox" checked class="peer hidden" id="dialog-plan-status">
                                             <dialog open class="absolute w-52 max-w-96 border border-neutral translate-y-1.5 drop-shadow-sm flex flex-col gap-1 p-1 rounded-box peer-checked:hidden">
                                                 {% for plan in plans %}
                                                 <label class="p-2 pr-4 flex items-center gap-3 rounded-box hover:bg-base-200 cursor-pointer">        
@@ -406,43 +406,52 @@
                         <div class="px-2 peer-checked:hidden">
                             <div class="border flex flex-col border-neutral rounded-box">
                                 <div class="p-2">
-                                    <form hx-post="" hx-swap="innerHTML" hx-target=""  class="flex gap-3 items-center justify-center">
+                                    <form hx-post="/search_priority/" hx-swap="innerHTML" hx-target="#priority-table"  class="flex gap-3 items-center justify-center">
                                         {% csrf_token %}
                                         <label class="input grow w-96">
                                             <img src="{% static 'img/filter.svg' %}" height="24px" width="24px" alt="search bar" > 
-                                            <input name="search" type="search" required placeholder="Search"/>
+                                            <input name="search" type="search" placeholder="Search" id="search-priority-table"/>
                                         </label>
                                         <button type="submit"  class="btn h-8 bg-success border border-success-content">Find</button>
                                     </form>
                                 </div>
-                                <div class="flex items-center border-t border-neutral p-2 px-4">
-                                    <form class="text-sm flex items-center justify-between w-full" hx-post=""  hx-swap="innerHTML" hx-target="">
+                                
+                                <div class="flex items-center border-t border-neutral p-2 px-4 justify-between text-sm">
+                                    
+                                    <button class="flex gap-2 items-center border p-2 border-neutral rounded-box cursor-pointer" type="button" hx-get="/create_priority/" hx-target="#top-layer" hx-swap="innerHTML">
+                                        <img src="{% static 'img/add.svg' %}" height="16px" width="16px" alt="create priority button">
+                                        <p>Create Priority</p>
+                                    </button>
 
+                                    <form class="flex items-center gap-2" hx-post="/sort_priority/" 
+                                        hx-trigger="change" 
+                                        hx-swap="innerHTML" 
+                                        hx-target="#priority-table"
+                                        hx-include="#search-priority-table">
+                                        {% csrf_token %}
                                         <div class="relative">
-                                            <label class="btn border border-neutral bg-base-100 p-1 px-4" type="button" for="dialog-plan-priority">
+                                            <label class="btn border border-neutral bg-base-100 p-0 px-4" type="button" for="dialog-plan-priority">
                                                 <img src="{% static 'img/chevron-down.svg' %}" alt="show plans" width="18px" height="18px">
                                                 <p>Plans</p>
                                             </label>
                                             <input type="checkbox" checked class="peer hidden" id="dialog-plan-priority">
-                                            <dialog open class="absolute max-w-96 border border-neutral translate-y-1.5 drop-shadow-sm flex flex-col gap-1 p-1 rounded-box peer-checked:hidden">
-                                                
+                                            <dialog open class="absolute w-52 max-w-96 border border-neutral translate-y-1.5 drop-shadow-sm flex flex-col gap-1 p-1 rounded-box peer-checked:hidden">
                                                 {% for plan in plans %}
-                                                <label class="p-2 pr-4  flex items-center gap-3 rounded-box hover:bg-base-200 cursor-pointer">        
-                                                    <input checked type="checkbox" name="sort-plans-priority" value="{{i}}">
+                                                <label class="p-2 pr-4 flex items-center gap-3 rounded-box hover:bg-base-200 cursor-pointer">        
+                                                    <input checked type="checkbox" name="choices-plan-priority" value="{{plan.id}}" >
                                                     <div class="">
                                                         <p class="w-full truncate">{{plan.name}}</p>
                                                         <p class="text-sm text-neutral">{{plan.desc}}</p>
                                                     </div>
                                                 </label>    
                                                 {% endfor %}
-
                                             </dialog>
                                         </div>
-
+                                        
                                         <div class="flex items-center gap-2">
                                             <p>Sort by</p>
                                             <div class="">
-                                                <input type="radio" class="peer hidden" id="SortByCreated-priority" value="1" name="sort"/>
+                                                <input type="radio" class="peer hidden" id="SortByCreated-priority" value="1" checked name="sort"/>
                                                 <label for="SortByCreated-priority" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
                                                     Date Created
                                                 </label>
@@ -461,53 +470,58 @@
                                             </div>
                                         </div>
                                     </form>
-                                    
                                 </div>
-                                <div class="">
-                                    {% for priority in priorities%}
-                                        <div class="border-t border-neutral flex justify-between text-center p-2 px-4">
-                                            
-                                            {{priority}}
-                                            
-                                        </div>    
-                                    {% endfor %}
+
+                                <div class="" id="priority-table">
+                                    {% include "component/priority_table.html" with priorities=priorities %}
                                 </div>
                             </div>
                         </div>
                     
-                        <div class="flex justify-between items-center">
-                            <p>Status - Types</p>
-                            <label class="btn border border-neutral" aria-label="toggle types table" for="toggle-types">
-                                <img src="{% static 'img/chevron-down.svg' %}" alt="show plans" width="24px" height="24px">
-                            </label>
-                        </div>
-                        <input type="checkbox" checked id="toggle-types" class="hidden peer">
-                        <div class="px-2 peer-checked:hidden">
-                            <div class="border flex flex-col border-neutral rounded-box">
-                                <div class="p-2">
-                                    <form hx-post="" hx-swap="innerHTML" hx-target=""  class="flex gap-3 items-center justify-center">
-                                        {% csrf_token %}
-                                        <label class="input grow w-96">
-                                            <img src="{% static 'img/filter.svg' %}" height="24px" width="24px" alt="search bar" > 
-                                            <input name="search" type="search" required placeholder="Search"/>
-                                        </label>
-                                        <button type="submit"  class="btn h-8 bg-success border border-success-content">Find</button>
-                                    </form>
-                                </div>
-                                <div class="flex items-center border-t border-neutral p-2 px-4">
+                        <div class="flex flex-col gap-4">
+                            <div class="flex justify-between items-center">
+                                <p>Status - Types</p>
+                                <label class="btn border border-neutral" aria-label="toggle types table" for="toggle-types">
+                                    <img src="{% static 'img/chevron-down.svg' %}" alt="show plans" width="24px" height="24px">
+                                </label>
+                            </div>
+                            <input type="checkbox" checked id="toggle-types" class="hidden peer">                
+                            <div class="px-2 peer-checked:hidden">
+                                <div class="border flex flex-col border-neutral rounded-box">
+                                    <div class="p-2">
+                                        <form hx-post="/search_types/" hx-swap="innerHTML" hx-target="#types-table"  class="flex gap-3 items-center justify-center">
+                                            {% csrf_token %}
+                                            <label class="input grow w-96">
+                                                <img src="{% static 'img/filter.svg' %}" height="24px" width="24px" alt="search bar" > 
+                                                <input name="search" type="search" placeholder="Search" id="search-types-table"/>
+                                            </label>
+                                            <button type="submit"  class="btn h-8 bg-success border border-success-content">Find</button>
+                                        </form>
+                                    </div>
                                     
-                                        <form class="text-sm flex items-center justify-between w-full" hx-post=""  hx-swap="innerHTML" hx-target="">
-                                            
+                                    <div class="flex items-center border-t border-neutral p-2 px-4 justify-between text-sm">
+                                        
+                                        <button class="flex gap-2 items-center border p-2 border-neutral rounded-box cursor-pointer" type="button" hx-get="/create_types/" hx-target="#top-layer" hx-swap="innerHTML">
+                                            <img src="{% static 'img/add.svg' %}" height="16px" width="16px" alt="create type button">
+                                            <p>Create type</p>
+                                        </button>
+
+                                        <form class="flex items-center gap-2" hx-post="/sort_types/" 
+                                            hx-trigger="change" 
+                                            hx-swap="innerHTML" 
+                                            hx-target="#types-table"
+                                            hx-include="#search-types-table">
+                                            {% csrf_token %}
                                             <div class="relative">
-                                                <label class="btn border border-neutral bg-base-100 p-1 px-4" type="button" for="dialog-plan-type">
+                                                <label class="btn border border-neutral bg-base-100 p-0 px-4" type="button" for="dialog-plan-types">
                                                     <img src="{% static 'img/chevron-down.svg' %}" alt="show plans" width="18px" height="18px">
                                                     <p>Plans</p>
                                                 </label>
-                                                <input type="checkbox" checked class="peer hidden" id="dialog-plan-type">
-                                                <dialog open class="absolute max-w-96 border border-neutral translate-y-1.5 drop-shadow-sm flex flex-col gap-1 p-1 rounded-box peer-checked:hidden">
+                                                <input type="checkbox" checked class="peer hidden" id="dialog-plan-types">
+                                                <dialog open class="absolute w-52 max-w-96 border border-neutral translate-y-1.5 drop-shadow-sm flex flex-col gap-1 p-1 rounded-box peer-checked:hidden">
                                                     {% for plan in plans %}
                                                     <label class="p-2 pr-4 flex items-center gap-3 rounded-box hover:bg-base-200 cursor-pointer">        
-                                                        <input checked type="checkbox" name="sort-plans-type" value="{{i}}" >
+                                                        <input checked type="checkbox" name="choices-plan-types" value="{{plan.id}}" >
                                                         <div class="">
                                                             <p class="w-full truncate">{{plan.name}}</p>
                                                             <p class="text-sm text-neutral">{{plan.desc}}</p>
@@ -516,39 +530,34 @@
                                                     {% endfor %}
                                                 </dialog>
                                             </div>
-
+                                            
                                             <div class="flex items-center gap-2">
                                                 <p>Sort by</p>
                                                 <div class="">
-                                                    <input type="radio" class="peer hidden" id="SortByCreated-type" value="1" name="sort"/>
-                                                    <label for="SortByCreated-type" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                                                    <input type="radio" class="peer hidden" id="SortByCreated-types" value="1" checked name="sort"/>
+                                                    <label for="SortByCreated-types" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
                                                         Date Created
                                                     </label>
                                                 </div>
                                                 <div class="">
-                                                    <input type="radio" class="peer hidden" id="SortByUpdate-type" value="2" name="sort"/>
-                                                    <label for="SortByUpdate-type" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                                                    <input type="radio" class="peer hidden" id="SortByUpdate-types" value="2" name="sort"/>
+                                                    <label for="SortByUpdate-types" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
                                                         Date Updated
                                                     </label>
                                                 </div>
                                                 <div class="">
-                                                    <input type="radio" class="peer hidden" id="SortByName-type" value="3" name="sort"/>
-                                                    <label for="SortByName-type" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
+                                                    <input type="radio" class="peer hidden" id="SortByName-types" value="3" name="sort"/>
+                                                    <label for="SortByName-types" class="peer-checked:text-black peer-checked:bg-white cursor-pointer rounded-box border border-neutral bg-base-200 p-2">
                                                         Name
                                                     </label>
                                                 </div>
                                             </div>
                                         </form>
-                                    
-                                </div>
-                                <div class="">
-                                    {% for type in types%}
-                                        <div class="border-t border-neutral flex justify-between text-center p-2 px-4">
-                                            
-                                            {{type}}
-                                            
-                                        </div>    
-                                    {% endfor %}
+                                    </div>
+
+                                    <div class="" id="types-table">
+                                        {% include "component/types_table.html" with types=types %}
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -37,27 +37,29 @@
                                             <path d="m21 21-4.3-4.3"></path>
                                         </g>
                                     </svg>
+
                                     <input id="search_assignee" type="search" class="grow" placeholder="Search" />
+                        
                                 </label>
-                               <div class="flex flex-col w-full overflow-hidden" id="assignees">
+                         
+                                <div class="flex flex-col w-full overflow-hidden" id="assignees">
                                    {% for assignee in assignees %}
                                     
-                                   
-                                   {% if user.id != assignee.id %}
+                                        {% if user.id != assignee.id %}
 
-                                    <div class="flex p-2 rounded-xl hover:bg-[#444] gap-2 items-center w-full overflow-hidden assignees">
-                                        <input type="checkbox" name="assignees" id="assignee-{{assignee.id}}" value="{{assignee.id}}">
-                                        <label class="flex gap-2 items-center w-full overflow-hidden" for="assignee-{{assignee.id}}">
-                                            <div class="avatar w-4 h-4">
-                                                <div class="w-24 rounded-full">
-                                                    <img src="{{assignee.image.url}}" alt="profile picture" />
-                                                </div>
+                                            <div class="flex p-2 rounded-xl hover:bg-[#444] gap-2 items-center w-full overflow-hidden assignees">
+                                                <input type="checkbox" name="assignees" id="assignee-{{assignee.id}}" value="{{assignee.id}}">
+                                                <label class="flex gap-2 items-center w-full overflow-hidden" for="assignee-{{assignee.id}}">
+                                                    <div class="avatar w-4 h-4">
+                                                        <div class="w-24 rounded-full">
+                                                            <img src="{{assignee.image.url}}" alt="profile picture" />
+                                                        </div>
+                                                    </div>
+                                                    <p class="truncate w-full overflow-hidden capitalize">{{assignee.username}}</p>
+                                                </label>
                                             </div>
-                                            <p class="truncate w-full overflow-hidden capitalize">{{assignee.username}}</p>
-                                        </label>
-                                    </div>
-                                    
-                                   {% endif %}
+                                            
+                                        {% endif %}
                                    
                                     {% endfor %}
                                </div>
@@ -180,7 +182,7 @@
 
             <button type="submit" class="btn btn-success border-success-content font-normal gap-1" >
                 <img src="{% static 'img/save.svg' %}" height="20px" width="20px" alt="priority button">
-                <p>Create</p>
+                <p class="text-white">Create</p>
             </button>
         </div>
     </form>

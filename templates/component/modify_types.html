@@ -4,7 +4,7 @@
 {% block dialog %}
 
 <div class="flex justify-between items-center border-b border-neutral p-2 pl-4 min-w-96 lg:min-w-[30rem]">
-    Modify Status <span class="font-extrabold">{{status.name}}</span>
+    Modify Type <span class="font-extrabold">{{types.name}}</span>
     <form method="dialog">
         <button type="submit" class="bg-base-200 group m-1 p-1 rounded-full hover:brightness-200 cursor-pointer">
             <img src="{% static 'img/cross.svg' %}" class="group-hover:brightness-50" alt="" height="20px" width="20px">
@@ -12,16 +12,16 @@
     </form>
 </div>
 
-<form class="flex flex-col p-4 gap-4" hx-post="/status_modification/{{status.id}}/" hx-swap="innerHTML" hx-target="#error-status-creation">
+<form class="flex flex-col p-4 gap-4" hx-post="/types_modification/{{types.id}}/" hx-swap="innerHTML" hx-target="#error-types-creation">
     {% csrf_token %}
     <div class="flex items-center gap-2">
         <label class="relative flex hover rounded-box p-2 cursor-pointer hover:bg-base-100 border border-neutral">
-            <div class="rounded-full border-2 w-6 h-6 justify-center items-center create-status-color-display color-preview-modify" style="background-color: {{status.color}}77; border-color: {{status.color}};">&#8204;</div>
-            <input type="color" required name="color" value="{{status.color}}" oninput="updateColor(this.value)"  class="create-status-color absolute left-0 w-1 top-full h-1 invisible opacity-0"/>
+            <div class="rounded-full w-4 h-4 justify-center items-center create-types-color-display color-preview-types-modify" style="background-color: {{types.color}};">&#8204;</div>
+            <input type="color" required name="color" value="{{types.color}}" oninput="updateColor(this.value)"  class="create-types-color absolute left-0 w-1 top-full h-1 invisible opacity-0"/>
         </label>
-        <input type="text" name="name" required value="{{status.name}}"  class="input grow" placeholder="Status Name"/>
+        <input type="text" name="name" required value="{{types.name}}"  class="input grow" placeholder="Type Name"/>
     </div>
-    <textarea name="desc" class="w-full h-48 textarea border-neutral text-base align-text-top p-2 px-3 min-h-6 resize-none outline-none min-w-full" required placeholder="Write Status Description Here...">{{status.desc}}</textarea>
+    <textarea name="desc" class="w-full h-48 textarea border-neutral text-base align-text-top p-2 px-3 min-h-6 resize-none outline-none min-w-full" required placeholder="Write Type Description Here...">{{types.desc}}</textarea>
 
     <div class="grid gap-2">
         <p>Select Plans</p>
@@ -40,15 +40,14 @@
             {% endfor %}
         </div>
     </div>
-    <button type="submit" class="btn bg-success border border-success-content" >Modify Status</button>
-    <div class="bg-red-500 shadow rounded-box" id="error-status-creation"></div>
+    <button type="submit" class="btn bg-success border border-success-content" >Modify Type</button>
+    <div class="bg-red-500 shadow rounded-box" id="error-types-creation"></div>
 </form>
 
 <script>
     function updateColor(value) {
-        const preview = document.querySelectorAll('.color-preview-modify');
-        preview[preview.length-1].style.backgroundColor = value + '77';
-        preview[preview.length-1].style.borderColor = value;
+        const preview = document.querySelectorAll('.color-preview-types-modify');
+        preview[preview.length-1].style.backgroundColor = value;
     }
 </script>
 {% endblock dialog %}

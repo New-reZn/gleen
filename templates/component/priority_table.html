@@ -1,11 +1,10 @@
 {% load static %}
-{% for status in statuses%}
+{% for priority in priorities%}
     <div class="border-t border-neutral p-2 px-4 flex items-center justify-between">
         <div class="flex gap-4 items-center">
-            <div class="rounded-full border-2 w-6 h-6 justify-center items-center create-status-color-display" style="background-color: {{status.color}}88; border-color: {{status.color}};">&#8204;</div>
             <div class="grid">
-               <p>{{status}}</p>
-               <p class="text-sm text-neutral">{{status.desc}}</p> 
+               <p style="color: {{priority.color}};">{{priority}}</p>
+               <p class="text-sm text-neutral">{{priority.desc}}</p> 
             </div>
         </div>
         <label class="cursor-pointer hover:bg-base-300 p-1 rounded-full shadow-none relative"  type="button" aria-label="plan options">
@@ -17,7 +16,7 @@
             <input class="peer absolute top-0 left-0 hidden h-6 w-6"  checked type="checkbox"/>
             <dialog class="absolute -translate-x-full top-full card bg-base-100 border border-neutral p-2 peer-checked:hidden z-50 w-44 space-y-1" open>
                 <button type="button" class="flex p-2 rounded-[10px] cursor-pointer gap-2 active:translate-y-[1px] bg-base-100 hover:bg-base-200 justify-start shadow-none"
-                        hx-get="/status_modification/{{status.id}}/"
+                        hx-get="/priority_modification/{{priority.id}}/"
                         hx-target="#top-layer" 
                         hx-swap="innerHTML"
                         >
@@ -25,7 +24,7 @@
                     <p>Modify Plan</p>
                 </button>
                 <button type="button" class="flex p-2 rounded-[10px] cursor-pointer gap-2 text-red-500 active:translate-y-[1px] bg-base-100 hover:bg-base-200 justify-start shadow-none"
-                        hx-get="/status_deletion/{{status.id}}/" 
+                        hx-get="/priority_deletion/{{priority.id}}/" 
                         hx-target="#top-layer" 
                         hx-swap="innerHTML"
                         >

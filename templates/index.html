@@ -14,7 +14,7 @@
                     <div tabindex="0" role="button" type="button">
                         <div class="avatar">
                             <div class="rounded-lg w-[25px] h-[25px]">
-                                <img src="/media/admins/user.svg" alt="notification" srcset="">
+                                <img src="{{ request.user.image.url }}" alt="{{ request.user.username }}'s profile" srcset="">
                             </div>
                         </div>
                     </div>

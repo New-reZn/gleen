@@ -1,0 +1,50 @@
+{% extends "component/base_popup.html" %}
+
+{% load static %}
+{% block dialog %}
+
+<div class="flex justify-between items-center border-b border-neutral p-2 pl-4 min-w-96 lg:min-w-[30rem]">
+    <p>Create Type</p>
+    <form method="dialog">
+        <button type="submit" class="bg-base-200 group m-1 p-1 rounded-full hover:brightness-200 cursor-pointer">
+            <img src="{% static 'img/cross.svg' %}" class="group-hover:brightness-50" alt="" height="20px" width="20px">
+        </button>
+    </form>
+</div>
+
+<form class="flex flex-col p-4 gap-4" hx-post="/create_types/" hx-swap="innerHTML" hx-target="#error-types-creation">
+    {% csrf_token %}
+    <div class="flex items-center gap-2">
+        <label class="relative flex hover rounded-box p-2 cursor-pointer hover:bg-base-100 border border-neutral">
+            <div class="rounded-full w-4 h-4 justify-center items-center create-types-color-display color-preview-types" style="background-color: #ff0000;">&#8204;</div>
+            <input type="color" required name="color" value="#ff0000" oninput="updateColor(this.value)"  class="create-types-color absolute left-0 w-1 top-full h-1 invisible opacity-0"/>
+        </label>
+        <input type="text" name="name" required  class="input grow" placeholder="Type Name"/>
+    </div>
+    <textarea name="desc" id="" class="w-full h-48 textarea border-neutral text-base align-text-top p-2 px-3 min-h-6 resize-none outline-none min-w-full" required placeholder="Write Type Description Here..."></textarea>
+
+    <div class="grid gap-2">
+        <p>Select Plans</p>
+        <div class="grid gap-1 bg-base-100 p-1 rounded-box border border-neutral max-h-48 overflow-y-auto">
+            {% for plan in plans %}
+            <label class="flex gap-3 p-2 px-4 rounded-box cursor-pointer hover:bg-base-200">
+                <input type="checkbox" checked name="plans" value="{{plan.id}}">    
+                <div class="">
+                    <p>{{plan}}</p>
+                    <p class="text-sm text-neutral">{{plan.desc}}</p>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+    <button type="submit" class="btn bg-success border border-success-content" >Create Type</button>
+    <div class="bg-red-500 shadow rounded-box" id="error-types-creation"></div>
+</form>
+
+<script>
+    function updateColor(value) {
+        const preview = document.querySelectorAll('.color-preview-types');
+        preview[preview.length-1].style.backgroundColor = value;
+    }
+</script>
+{% endblock dialog %}

@@ -22,4 +22,16 @@ urlpatterns = [
     path("sort_status/",views.sort_status),
     path("status_modification/<int:status_id>/",views.update_status),
     path("status_deletion/<int:status_id>/",views.delete_status),
+    #priority CRUD
+    path("create_priority/",views.create_priority),
+    path("search_priority/",views.search_priority),
+    path("sort_priority/",views.sort_priority),
+    path("priority_modification/<int:priority_id>/",views.update_priority),
+    path("priority_deletion/<int:priority_id>/",views.delete_priority),
+    #types CRUD
+    path("create_types/",views.create_types),
+    path("search_types/",views.search_types),
+    path("sort_types/",views.sort_types),
+    path("types_modification/<int:type_id>/",views.update_types),
+    path("types_deletion/<int:type_id>/",views.delete_types),
 ]

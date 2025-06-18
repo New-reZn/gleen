@@ -45,7 +45,7 @@ def change_profile(request):
         
         config.save()
         
-    return redirect("settings/")
+    return redirect("/settings/")
 
 @htmx_required
 def search_plans(request):
@@ -426,7 +426,6 @@ def sort_status(request):
     else:
         return HttpResponse("<p>wrong request</p>")
     
-
 @htmx_required
 def delete_status(request,status_id):
     
@@ -473,9 +472,8 @@ def update_status(request,status_id):
         try:
             plans=Plan.objects.filter(id__in=plans)
             
-            if plans:
-                status.plan.set(plans)
-                status.save()
+            status.plan.set(plans)    
+            status.save()
             
             response = HttpResponse()
             response["HX-Redirect"] = "/settings/"
@@ -491,8 +489,307 @@ def update_status(request,status_id):
         response = HttpResponse()
         response["HX-Redirect"] = "/settings/"
         return response
+    
+    selected_plan_ids = list(
+        status.plan.values_list('id', flat=True)
+    )
 
     return render(request,"component/modify_status.html",{
         "status":status,
-        "plans":Plan.objects.all()
+        "plans":Plan.objects.all(),
+        "selected_plan_ids": selected_plan_ids,
+    })
+
+@htmx_required
+@admin_privilege
+def create_priority(request):
+    
+    if request.method=="POST":
+        name= request.POST["name"]
+        desc= request.POST["desc"]
+        color= request.POST["color"]
+        
+        plans= request.POST.getlist("plans")
+        creator = request.user
+        
+        try:
+            
+            plans=Plan.objects.filter(id__in=plans)
+            
+            priority=Priority.objects.create(creator=creator,name=name,desc=desc,color=color)
+            
+            if plans:
+                priority.plan.set(plans)
+                priority.save()
+                
+            response = HttpResponse()
+            response["HX-Redirect"] = "/settings/"
+            return response
+        
+        except Exception as e:
+            return HttpResponse(f"<p class='p-2'>{str(e)}</p>")
+        
+    return render(request,"component/create_priority.html",{"plans":Plan.objects.all()})
+
+@htmx_required
+def search_priority(request):
+    if request.method=="POST":
+        search=request.POST['search'].strip()
+        
+        if search=="":
+            priority=Priority.objects.all()
+        else:
+            priority=Priority.objects.filter(Q(name__icontains=search)|Q(desc__icontains=search))
+        
+        return render(request,"component/priority_table.html",{"priorities":priority})
+    else:
+        return HttpResponse("<p>wrong request</p>")
+    
+@htmx_required
+def sort_priority(request):
+    if request.method=="POST":
+        search=request.POST["search"]
+        choices=request.POST.getlist("choices-plan-status")
+        sort=request.POST['sort'].strip()
+        
+        plans=Plan.objects.filter(id__in=choices)
+        
+        priority = Priority.objects.all()
+
+        if search:
+            priority = priority.filter(Q(name__icontains=search) | Q(desc__icontains=search))
+
+        if plans:
+            priority = priority.filter(plan__id__in=choices).distinct()
+        
+        if sort=="1":
+            priority=priority.order_by("created_on")
+        elif sort=="2":
+            priority=priority.order_by("updated_on")
+        elif sort=="3":
+            priority=priority.order_by("name")
+            
+        return render(request,"component/priority_table.html",{"priorities":priority})
+    else:
+        return HttpResponse("<p>wrong request</p>")
+    
+@htmx_required
+def delete_priority(request,priority_id):
+    
+    if request.method=="POST" and request.user.is_admin:
+        priority=get_object_or_none(Priority,id=priority_id)
+        if priority:
+            priority.delete()
+        return redirect("/settings/")
+    
+    priority=get_object_or_none(Priority,id=priority_id)
+    
+    if not priority or not request.user.is_admin:
+        return redirect("/settings/")
+    
+    return render(request,"component/confirm_deletion.html",{
+      "object":priority,
+      "type":"priority",
+      "deletion_url":f"/priority_deletion/{priority.id}/"
+    })
+
+@htmx_required
+@admin_privilege
+def update_priority(request,priority_id):
+    
+    if request.method=="POST":
+        name= request.POST["name"]
+        desc= request.POST["desc"]
+        color= request.POST["color"]
+        
+        plans= request.POST.getlist("plans")
+        
+        priority = get_object_or_none(Priority,id=priority_id)
+        
+        print(priority)
+        if name and priority.name!=name:
+            priority.name = name.strip()
+        
+        if desc and priority.desc!=desc:
+            priority.desc = desc.strip()
+        
+        if color and priority.color!=color:
+            priority.color = color.strip() 
+        
+        try:
+            plans=Plan.objects.filter(id__in=plans)
+            
+            priority.plan.set(plans)    
+            priority.save()
+            
+            response = HttpResponse()
+            response["HX-Redirect"] = "/settings/"
+            return response
+        
+        except Exception as e:
+            return HttpResponse(f"<p class='p-2'>{str(e)}</p>")
+    
+    priority=get_object_or_none(Priority,id=priority_id)
+    
+        
+    if not priority:
+        response = HttpResponse()
+        response["HX-Redirect"] = "/settings/"
+        return response
+    
+    selected_plan_ids = list(
+        priority.plan.values_list('id', flat=True)
+    )
+
+    return render(request,"component/modify_priority.html",{
+        "priority":priority,
+        "plans":Plan.objects.all(),
+        "selected_plan_ids": selected_plan_ids,
+    })
+
+@htmx_required
+@admin_privilege
+def create_types(request):
+    
+    if request.method=="POST":
+        name= request.POST["name"]
+        desc= request.POST["desc"]
+        color= request.POST["color"]
+        
+        plans= request.POST.getlist("plans")
+        creator = request.user
+        
+        try:
+            
+            plans=Plan.objects.filter(id__in=plans)
+            
+            type=Types.objects.create(creator=creator,name=name,desc=desc,color=color)
+            
+            if plans:
+                type.plan.set(plans)
+                type.save()
+                
+            response = HttpResponse()
+            response["HX-Redirect"] = "/settings/"
+            return response
+        
+        except Exception as e:
+            return HttpResponse(f"<p class='p-2'>{str(e)}</p>")
+        
+    return render(request,"component/create_types.html",{"plans":Plan.objects.all()})
+
+@htmx_required
+def search_types(request):
+    if request.method=="POST":
+        search=request.POST['search'].strip()
+        
+        if search=="":
+            types=Types.objects.all()
+        else:
+            types=Types.objects.filter(Q(name__icontains=search)|Q(desc__icontains=search))
+        
+        return render(request,"component/types_table.html",{"types":types})
+    else:
+        return HttpResponse("<p>wrong request</p>")
+    
+@htmx_required
+def sort_types(request):
+    if request.method=="POST":
+        search=request.POST["search"]
+        choices=request.POST.getlist("choices-plan-status")
+        sort=request.POST['sort'].strip()
+        
+        plans=Plan.objects.filter(id__in=choices)
+        
+        types = Types.objects.all()
+
+        if search:
+            types = types.filter(Q(name__icontains=search) | Q(desc__icontains=search))
+
+        if plans:
+            types = types.filter(plan__id__in=choices).distinct()
+        
+        if sort=="1":
+            types=types.order_by("created_on")
+        elif sort=="2":
+            types=types.order_by("updated_on")
+        elif sort=="3":
+            types=types.order_by("name")
+            
+        return render(request,"component/types_table.html",{"types":types})
+    else:
+        return HttpResponse("<p>wrong request</p>")
+    
+@htmx_required
+def delete_types(request,type_id):
+    
+    if request.method=="POST" and request.user.is_admin:
+        types=get_object_or_none(Types,id=type_id)
+        if types:
+            types.delete()
+        return redirect("/settings/")
+    
+    types=get_object_or_none(Types,id=type_id)
+    
+    if not types or not request.user.is_admin:
+        return redirect("/settings/")
+    
+    return render(request,"component/confirm_deletion.html",{
+      "object":types,
+      "type":"type",
+      "deletion_url":f"/types_deletion/{types.id}/"
+    })
+
+@htmx_required
+@admin_privilege
+def update_types(request,type_id):
+    
+    if request.method=="POST":
+        name= request.POST["name"]
+        desc= request.POST["desc"]
+        color= request.POST["color"]
+        
+        plans= request.POST.getlist("plans")
+        
+        types = get_object_or_none(Types,id=type_id)
+        
+        print(types)
+        if name and types.name!=name:
+            types.name = name.strip()
+        
+        if desc and types.desc!=desc:
+            types.desc = desc.strip()
+        
+        if color and types.color!=color:
+            types.color = color.strip() 
+        
+        try:
+            plans=Plan.objects.filter(id__in=plans)
+            
+            types.plan.set(plans)    
+            types.save()
+            
+            response = HttpResponse()
+            response["HX-Redirect"] = "/settings/"
+            return response
+        
+        except Exception as e:
+            return HttpResponse(f"<p class='p-2'>{str(e)}</p>")
+    
+    types=get_object_or_none(Types,id=type_id)
+    
+        
+    if not types:
+        response = HttpResponse()
+        response["HX-Redirect"] = "/settings/"
+        return response
+    
+    selected_plan_ids = list(
+        types.plan.values_list('id', flat=True)
+    )
+
+    return render(request,"component/modify_types.html",{
+        "types":types,
+        "plans":Plan.objects.all(),
+        "selected_plan_ids": selected_plan_ids,
     })

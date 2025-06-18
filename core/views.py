@@ -423,12 +423,6 @@ def create_issue(request,status_id=None):
             name=title_input,
             desc=desc_input
         )
-        
-        for assingee_id in assignees_input:
-            assingee=User.objects.filter(id=assingee_id).first()
-            if not assingee:
-                return HttpResponse("wrong request")
-            issue.assignees.add(assingee)
             
         
         if default_status==None:
@@ -453,6 +447,13 @@ def create_issue(request,status_id=None):
                 issue.type=current_plan.types_set.first()
             
         issue.save(updater=request.user)
+        
+        for assingee_id in assignees_input:
+            assingee=User.objects.filter(id=assingee_id).first()
+            if not assingee:
+                return HttpResponse("wrong request")
+            issue.assignees.add(assingee)
+        
         ChartObject.objects.create(plan=current_plan,status=default_status)
         
         comment=Comment.objects.create(
