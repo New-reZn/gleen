@@ -16,4 +16,7 @@ urlpatterns = [
     path("change_issue_details/<int:issue_id>/",views.change_detail),
     path("board_search/",views.board_search),
     path("table_search/",views.table_search),
+    path("pin_issue/<int:issue_id>/",views.pin_issue),
+    path("delete_issue/<int:issue_id>/",views.delete_issue),
+    path("lock_issue/<int:issue_id>/",views.lock_issue),
 ]

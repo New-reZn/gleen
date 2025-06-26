@@ -92,10 +92,16 @@ class Issues(models.Model):
             Activities.objects.create(issue=self,subject=updater,verb="changed type to",object=self.type,type="type")
         
         if og_issue.is_pinned!=self.is_pinned:
-            Activities.objects.create(issue=self,subject=updater,verb="pinned",object=self.name,type="pinned")
+            if self.is_pinned:
+                Activities.objects.create(issue=self,subject=updater,verb="pinned",object=self.name,type="pinned")
+            else:
+                Activities.objects.create(issue=self,subject=updater,verb="unpinned",object=self.name,type="pinned")
             
         if og_issue.is_locked!=self.is_locked:
-            Activities.objects.create(issue=self,subject=updater,verb="locked",object=self.name,type="locked")
+            if self.is_locked:
+                Activities.objects.create(issue=self,subject=updater,verb="locked",object=self.name,type="locked")
+            else:
+                Activities.objects.create(issue=self,subject=updater,verb="unlocked",object=self.name,type="locked")
         
         if og_issue.name!=self.name:
             Activities.objects.create(issue=self,subject=updater,verb=f"changed issue name to",object=self.name,type="name",previous_name=og_issue.name)

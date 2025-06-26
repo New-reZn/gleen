@@ -1,4 +1,4 @@
-from collections import defaultdict
+# from collections import OrderedDict, defaultdict
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from setup.models import GlobalSettings
@@ -12,6 +12,7 @@ from django.conf import settings
 from django.db.models import Count
 from datetime import timedelta
 import datetime
+from django.views.decorators.http import require_POST
 
 # Create your views here.
 
@@ -628,6 +629,8 @@ def create_chart(request):
     else:
         return HttpResponse("wrong request")
     
+    print(date_mapping,mappings)
+    
     return render(request,"component/chart.html",{"chartdata":mappings,"chartdate":date_mapping})
 
 @htmx_required
@@ -737,7 +740,6 @@ def change_detail(request,issue_id):
                 return redirect("/")
             issue.assignees.add(assignee)
             
-        print("here",priority)
         issue.priority=priority
         issue.type=type
         issue.status=status
@@ -769,3 +771,51 @@ def table_search(request):
             issues=Issues.objects.filter(name__icontains=text)
         
         return render(request,"component/table.html",{"issues":issues})
+
+@htmx_required
+@require_POST
+def pin_issue(request,issue_id):
+    issue=get_object_or_none(Issues,id=issue_id)
+    
+    if not issue:
+        return HttpResponse("<p>invalid call</p>")    
+    
+    if request.user.is_admin:
+        issue.is_pinned = not issue.is_pinned
+        issue.save(updater=request.user)
+    else:
+        if issue.pinned_for.filter(id=request.user.id).exists():
+            issue.pinned_for.remove(request.user)
+        else:
+            issue.pinned_for.add(request.user)
+    
+    return redirect("/")
+
+@htmx_required
+@require_POST
+@admin_privilege
+def delete_issue(request,issue_id):
+    issue=get_object_or_none(Issues,id=issue_id)
+    
+    if not issue:
+        return HttpResponse("<p>invalid call</p>")
+    
+    issue.delete()
+    
+    response = HttpResponse()
+    response['HX-Redirect'] = "/"
+    return response
+
+@htmx_required
+@require_POST
+@admin_privilege
+def lock_issue(request,issue_id):
+    issue=get_object_or_none(Issues,id=issue_id)
+    
+    if not issue:
+        return HttpResponse("<p>invalid call</p>")
+    
+    issue.is_locked = not issue.is_locked
+    issue.save(updater=request.user)
+    
+    return redirect("/")

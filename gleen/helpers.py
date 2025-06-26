@@ -54,11 +54,12 @@ def htmx_required(view_func):
 def admin_privilege(view_func):
     def wrapper(request, *args, **kwargs):
         
+        if not request.user.is_authenticated:
+            return HttpResponse("<p>invalid call</p>")
+        
         if request.user.is_admin:
             return view_func(request, *args, **kwargs)
 
-        if not request.user.is_authenticated:
-            return HttpResponse("<p>invalid call</p>")
         
     return wrapper
 
@@ -66,21 +67,22 @@ def admin_privilege(view_func):
 def dev_privilege(view_func):
     def wrapper(request, *args, **kwargs):
         
+        if not request.user.is_authenticated:
+            return HttpResponse("<p>invalid call</p>")
+        
         if request.user.is_developer:
             return view_func(request, *args, **kwargs)
 
-        if not request.user.is_authenticated:
-            return HttpResponse("<p>invalid call</p>")
         
     return wrapper
 
 def rep_privilege(view_func):
     def wrapper(request, *args, **kwargs):
         
-        if request.user.is_reporter:
-            return view_func(request, *args, **kwargs)
-
         if not request.user.is_authenticated:
             return HttpResponse("<p>invalid call</p>")
+        
+        if request.user.is_reporter:
+            return view_func(request, *args, **kwargs)
         
     return wrapper

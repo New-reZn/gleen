@@ -1,6 +1,5 @@
 {% load static %}
 
-<!-- TODO : add,open and drag issues -->
 {% for status in status %}
 <div class="p-4 pb-1 card bg-base-300 gap-2 border border-neutral shadow-lg rounded-xl min-w-96">
     <div class="flex flex-col gap-0.5 px-2">
@@ -24,59 +23,120 @@
         <input type="hidden" name="status" value="{{status.id}}">
         <input type="hidden" name="latest_issue" value="">
         
+        
         {% for issue in issues %}
             {%if issue.status.id == status.id %}
-                <div class="card flex flex-col gap-1 bg-base-200 rounded-xl p-2 px-3 cursor-grab issue-draggable" draggable="true" id="issue-{{issue.id}}">
-                    <div class="flex justify-between items-start">
-                        <div class="flex items-center gap-2">
-                            <div class="w-4 h-4 rounded-full overflow-hidden" style="background-color: {{issue.type.color}};"></div>
-                            <p class="text-sm">{{issue.name}} #{{issue.id}} </p>
-                        </div>
-                        
-                        <label class="relative">
-                            <input type="checkbox" class="hidden peer">
-                            <ul class="menu bg-base-100 border border-neutral drop-shadow-md justify-center gap-1 w-36 hidden peer-checked:flex rounded-box p-1 absolute right-full">
-                                <li class="rounded-lg">
-                                    <button 
-                                    type="submit"
-                                    hx-target="#top-layer" 
-                                    hx-swap="innerHTML"
-                                    hx-get="/view_issue/"
-                                    class="p-2.5 flex items-center justify-start gap-2.5">
-                                        <img src="{% static 'img/pin.svg' %}" height="16px" width="16px" alt="pin button">                                                                           
-                                        <p>Pin Issue</p>
-                                    </button>
-                                </li>
-                                <li class="rounded-lg">
-                                    <button 
-                                    type="submit"
-                                    hx-target="#top-layer" 
-                                    hx-swap="innerHTML"
-                                    hx-get="/view_issue/{{issue.id}}/"
-                                    class="p-2.5 gap-2.5 flex items-center justify-start">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M10.8 21.5998H4.80001C3.47453 21.5998 2.40002 20.5253 2.40002 19.1998L2.40012 4.79989C2.40013 3.47441 3.47464 2.3999 4.80012 2.3999H15.6004C16.9259 2.3999 18.0004 3.47442 18.0004 4.7999V9.5999M17.4 17.3489V17.2857M6.6004 7.1999H13.8004M6.6004 10.7999H13.8004M6.6004 14.3999H10.2004M21.6 17.3999C21.6 17.3999 20.6039 20.3396 17.4 20.2882C14.1962 20.2369 13.2 17.3999 13.2 17.3999C13.2 17.3999 14.1558 14.4089 17.4 14.4089C20.6443 14.4089 21.6 17.3999 21.6 17.3999Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>                                            
-                                        <p>View Issue</p>
-                                    </button>
-                                </li>   
-                            </ul>
-                            <div class="hover:bg-neutral active:brightness-110 rounded-full p-1 cursor-pointer">
-                                <img src="{% static 'img/menu-dot.svg' %}" alt="button" width="16" height="16">
+                {% if request.user in issue.pinned_for.all or issue.is_pinned %}
+                    <div class="card flex flex-col gap-1 bg-base-200 rounded-xl p-2 px-3 cursor-grab issue-draggable" draggable="true" id="issue-{{issue.id}}">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-2">
+                                <img src="{% static 'img/pinned.svg' %}" class="rotate-45" width="16" height="16" alt="pinned issue">
+                                <div class="w-4 h-4 rounded-full overflow-hidden" style="background-color: {{issue.type.color}};"></div>
+                                <p class="text-sm">{{issue.name}} #{{issue.id}} </p>
                             </div>
-                        </label>
-                    </div>
-                    <p class="text-sm pb-1">{{issue.desc}}</p>
-                    <div class="flex">
-                        <div class="border rounded-xl p-2 flex gap-1 items-center" style="border-color: {{issue.priority.color}};">                           
-                            <svg style="color: {{issue.priority.color}};" width="20" height="13" viewBox="0 0 23 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2 7.87566C4.5 1.37554 15.5 -3.62451 21 7.87566C17 18.3756 5.5 15.8756 2 7.87566Z" stroke="currentColor" stroke-width="2"/>
-                                <circle cx="11.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="2"/>
-                            </svg>                                
-                            <p class="text-sm">{{issue.priority.name}}</p>
+                            <label class="relative">
+                                <input type="checkbox" class="hidden peer">
+                                <ul class="menu bg-base-100 border border-neutral drop-shadow-md justify-center gap-1 w-36 hidden peer-checked:flex rounded-box p-1 absolute right-full">
+                                    <li class="rounded-lg">
+                                        <button 
+                                        type="button"
+                                        hx-post="/pin_issue/{{issue.id}}/"
+                                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                        hx-swap="none"
+                                        class="p-2.5 flex items-center justify-start gap-2.5">
+                                            <img src="{% static 'img/pin.svg' %}" height="16px" width="16px" alt="pin button">                                                                           
+                                            <p>Pin Issue</p>
+                                        </button>
+                                    </li>
+                                    <li class="rounded-lg">
+                                        <button 
+                                        type="submit"
+                                        hx-target="#top-layer" 
+                                        hx-swap="innerHTML"
+                                        hx-get="/view_issue/{{issue.id}}/"
+                                        class="p-2.5 gap-2.5 flex items-center justify-start">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M10.8 21.5998H4.80001C3.47453 21.5998 2.40002 20.5253 2.40002 19.1998L2.40012 4.79989C2.40013 3.47441 3.47464 2.3999 4.80012 2.3999H15.6004C16.9259 2.3999 18.0004 3.47442 18.0004 4.7999V9.5999M17.4 17.3489V17.2857M6.6004 7.1999H13.8004M6.6004 10.7999H13.8004M6.6004 14.3999H10.2004M21.6 17.3999C21.6 17.3999 20.6039 20.3396 17.4 20.2882C14.1962 20.2369 13.2 17.3999 13.2 17.3999C13.2 17.3999 14.1558 14.4089 17.4 14.4089C20.6443 14.4089 21.6 17.3999 21.6 17.3999Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>                                            
+                                            <p>View Issue</p>
+                                        </button>
+                                    </li>   
+                                </ul>
+                                <div class="hover:bg-neutral active:brightness-110 rounded-full p-1 cursor-pointer">
+                                    <img src="{% static 'img/menu-dot.svg' %}" alt="button" width="16" height="16">
+                                </div>
+                            </label>
+                        </div>
+                        <p class="text-sm pb-1">{{issue.desc}}</p>
+                        <div class="flex">
+                            <div class="border rounded-xl p-2 flex gap-1 items-center" style="border-color: {{issue.priority.color}};">                           
+                                <svg style="color: {{issue.priority.color}};" width="20" height="13" viewBox="0 0 23 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 7.87566C4.5 1.37554 15.5 -3.62451 21 7.87566C17 18.3756 5.5 15.8756 2 7.87566Z" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="11.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                                </svg>                                
+                                <p class="text-sm">{{issue.priority.name}}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% for issue in issues %}
+            {%if issue.status.id == status.id %}
+                {% if not request.user in issue.pinned_for.all and not issue.is_pinned %}
+                    <div class="card flex flex-col gap-1 bg-base-200 rounded-xl p-2 px-3 cursor-grab issue-draggable" draggable="true" id="issue-{{issue.id}}">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded-full overflow-hidden" style="background-color: {{issue.type.color}};"></div>
+                                <p class="text-sm">{{issue.name}} #{{issue.id}} </p>
+                            </div>
+                            
+                            <label class="relative">
+                                <input type="checkbox" class="hidden peer">
+                                <ul class="menu bg-base-100 border border-neutral drop-shadow-md justify-center gap-1 w-36 hidden peer-checked:flex rounded-box p-1 absolute right-full">
+                                    <li class="rounded-lg">
+                                        <button 
+                                        type="button"
+                                        hx-post="/pin_issue/{{issue.id}}/"
+                                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                        hx-swap="none"
+                                        class="p-2.5 flex items-center justify-start gap-2.5">
+                                            <img src="{% static 'img/pin.svg' %}" height="16px" width="16px" alt="pin button">                                                                           
+                                            <p>Pin Issue</p>
+                                        </button>
+                                    </li>
+                                    <li class="rounded-lg">
+                                        <button 
+                                        type="submit"
+                                        hx-target="#top-layer" 
+                                        hx-swap="innerHTML"
+                                        hx-get="/view_issue/{{issue.id}}/"
+                                        class="p-2.5 gap-2.5 flex items-center justify-start">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M10.8 21.5998H4.80001C3.47453 21.5998 2.40002 20.5253 2.40002 19.1998L2.40012 4.79989C2.40013 3.47441 3.47464 2.3999 4.80012 2.3999H15.6004C16.9259 2.3999 18.0004 3.47442 18.0004 4.7999V9.5999M17.4 17.3489V17.2857M6.6004 7.1999H13.8004M6.6004 10.7999H13.8004M6.6004 14.3999H10.2004M21.6 17.3999C21.6 17.3999 20.6039 20.3396 17.4 20.2882C14.1962 20.2369 13.2 17.3999 13.2 17.3999C13.2 17.3999 14.1558 14.4089 17.4 14.4089C20.6443 14.4089 21.6 17.3999 21.6 17.3999Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>                                            
+                                            <p>View Issue</p>
+                                        </button>
+                                    </li>   
+                                </ul>
+                                <div class="hover:bg-neutral active:brightness-110 rounded-full p-1 cursor-pointer">
+                                    <img src="{% static 'img/menu-dot.svg' %}" alt="button" width="16" height="16">
+                                </div>
+                            </label>
+                        </div>
+                        <p class="text-sm pb-1">{{issue.desc}}</p>
+                        <div class="flex">
+                            <div class="border rounded-xl p-2 flex gap-1 items-center" style="border-color: {{issue.priority.color}};">                           
+                                <svg style="color: {{issue.priority.color}};" width="20" height="13" viewBox="0 0 23 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 7.87566C4.5 1.37554 15.5 -3.62451 21 7.87566C17 18.3756 5.5 15.8756 2 7.87566Z" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="11.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                                </svg>                                
+                                <p class="text-sm">{{issue.priority.name}}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             {% endif %}
         {% endfor %}
     </form>

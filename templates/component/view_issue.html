@@ -137,15 +137,39 @@
                 </div>
             </div>
             <div class="p-1 py-3 flex flex-col gap-1 items-start">
-                <button type="button" class="btn shadow-none outline-none border-0 w-full justify-start gap-2">
-                    <img src="{% static 'img/lock.svg' %}" height="24px" width="24px" alt="Lock button">
-                    <p>Lock Issue</p>
+                <button type="submit" class="btn shadow-none outline-none border-0 w-full justify-start gap-2" id="lock_button"
+                    hx-post="/lock_issue/{{issue.id}}/"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-swap="none"
+                >
+                    {% if issue.is_locked %}
+                        <img src="{% static 'img/locked.svg' %}" height="24px" width="24px" alt="Lock button">
+                        <p>Unlock Issue</p>
+                    {%else%}
+                        <img src="{% static 'img/lock.svg' %}" height="24px" width="24px" alt="Lock button">
+                        <p>Lock Issue</p>
+                    {% endif %}
                 </button>
-                <button type="button" class="btn shadow-none outline-none border-0 w-full gap-2  justify-start">
-                    <img src="{% static 'img/pin.svg' %}" height="24px" width="24px" alt="Pin button">
-                    <p>Pin Issue</p>
+        
+                <button type="submit" class="btn shadow-none outline-none border-0 w-full gap-2  justify-start" id="pin_button"
+                    hx-post="/pin_issue/{{issue.id}}/"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-swap="none"
+                >
+                    {% if issue.is_pinned %}
+                        <img src="{% static 'img/pinned.svg' %}" height="24px" width="24px" alt="Pin button">
+                        <p>Unpin Issue</p>
+                    {%else%}
+                        <img src="{% static 'img/pin.svg' %}" height="24px" width="24px" alt="Pin button">
+                        <p>Pin Issue</p>
+                    {% endif %}
                 </button>
-                <button type="button" class="btn shadow-none outline-none border-0 w-full gap-2  justify-start text-red-600">
+
+                <button type="submit" class="btn shadow-none outline-none border-0 w-full gap-2  justify-start text-red-600" id="delete_button"
+                    hx-post="/delete_issue/{{issue.id}}/"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-swap="none"
+                >
                     <img src="{% static 'img/trashcan-red.svg' %}" height="24px" width="24px" alt="Delete button">
                     <p>Delete Issue</p>
                 </button>
@@ -186,23 +210,30 @@
             </div>
             <div class="">
                 <div class="card bg-base-300 border rounded-box border-neutral">
-                    <form hx-post="/view_issue/{{issue.id}}/" hx-target="this" hx-swap="none" id="commentForm">
-                        {% csrf_token %}
-                        <div class="flex justify-between items-center px-3 p-2 border-b border-b-neutral">
-                            <div class="flex items-center gap-2 ">
-                                <img src="{{request.user.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
-                                <p>{{request.user}}</p>
+                    {% if not issue.is_locked %}
+                        <form hx-post="/view_issue/{{issue.id}}/" hx-target="this" hx-swap="none" id="commentForm">
+                            {% csrf_token %}
+                            <div class="flex justify-between items-center px-3 p-2 border-b border-b-neutral">
+                                <div class="flex items-center gap-2 ">
+                                    <img src="{{request.user.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
+                                    <p>{{request.user}}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="btn bg-base-200"  type="reset">Cancel</button>
+                                    <button type="submit" class="btn bg-success border-success-content">
+                                        <img src="{% static 'img/save.svg' %}" width="16px" height="16px"/>
+                                        <p>Submit</p>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <button class="btn bg-base-200"  type="reset">Cancel</button>
-                                <button type="submit" class="btn bg-success border-success-content">
-                                    <img src="{% static 'img/save.svg' %}" width="16px" height="16px"/>
-                                    <p>Submit</p>
-                                </button>
-                            </div>
+                            <textarea class="w-full min-h-36 text-base align-text-top p-2 px-3 resize-none outline-none min-w-full" name="comment" id="commentTextArea" placeholder="Write Your Comment..." ></textarea>
+                        </form>
+                    {% else %}
+                        <div class="flex gap-2 px-3 p-2">
+                            <img src="{% static 'img/locked.svg' %}" class=" opacity-50" height="20"  width="20" alt="issue locked">
+                            <p class="text-neutral">This issue is locked</p>
                         </div>
-                        <textarea class="w-full min-h-36 text-base align-text-top p-2 px-3 resize-none outline-none min-w-full" name="comment" id="commentTextArea" placeholder="Write Your Comment..." "></textarea>
-                    </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -252,6 +283,25 @@
         close_switch.addEventListener('detailsUpdated',(e)=>{
             close_switch.children[0].classList.add("hidden")
             close_switch.children[1].classList.remove("hidden")
+        })
+
+        const lock_button=document.querySelector("#lock_button")
+        const pin_button=document.querySelector("#pin_button")
+        const delete_button=document.querySelector("#delete_button")
+
+        lock_button.addEventListener('htmx:afterRequest', e=>{
+            const event = new CustomEvent('detailsUpdated');
+            close_switch.dispatchEvent(event);
+        })
+
+        pin_button.addEventListener('htmx:afterRequest', e=>{
+            const event = new CustomEvent('detailsUpdated');
+            close_switch.dispatchEvent(event);
+        })
+
+        delete_button.addEventListener('htmx:afterRequest', e=>{
+            const event = new CustomEvent('detailsUpdated');
+            close_switch.dispatchEvent(event);
         })
 
         const priorities=document.querySelectorAll(".priority")

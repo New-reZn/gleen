@@ -1425,6 +1425,18 @@
     padding: 0.5rem;
     min-height: 4rem;
   }
+  .stat {
+    display: inline-grid;
+    width: 100%;
+    column-gap: calc(0.25rem * 4);
+    padding-inline: calc(0.25rem * 6);
+    padding-block: calc(0.25rem * 4);
+    grid-template-columns: repeat(1, 1fr);
+    &:not(:last-child) {
+      border-inline-end: var(--border) dashed color-mix(in oklab, currentColor 10%, #0000);
+      border-block-end: none;
+    }
+  }
   .label {
     display: inline-flex;
     align-items: center;
@@ -1634,6 +1646,12 @@
   .translate-y-1\.5 {
     --tw-translate-y: calc(var(--spacing) * 1.5);
     translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+  .-rotate-45 {
+    rotate: calc(45deg * -1);
+  }
+  .rotate-45 {
+    rotate: 45deg;
   }
   .link {
     cursor: pointer;
@@ -1929,6 +1947,9 @@
   .bg-drop\/80 {
     background-color: color-mix(in oklab, var(--color-drop) 80%, transparent);
   }
+  .bg-neutral {
+    background-color: var(--color-neutral);
+  }
   .bg-neutral-500 {
     background-color: var(--color-neutral-500);
   }
@@ -2129,6 +2150,9 @@
   }
   .opacity-0 {
     opacity: 0%;
+  }
+  .opacity-5 {
+    opacity: 5%;
   }
   .opacity-30 {
     opacity: 30%;
