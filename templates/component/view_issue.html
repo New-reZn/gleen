@@ -10,17 +10,19 @@
         <div class="flex gap-2 items-center">
             <p>{{issue.name}} <span> #{{issue.id}}</span> </p>
             <div class="text-sm relative grid items-center">
-                <input class="peer hidden" type="checkbox"  id="priority">
-                <!--TODO:priority-->
-                <dialog open class="hidden peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-40">
-                    {% for i in priorities %}
-                    <label class="flex gap-2 p-1 priority">
-                        <input type="radio" name="priorities" value="{{i}}">
-                        <input type="hidden" value="{{i.color}}">    
-                        <p>{{i}}</p>
-                    </label>
-                    {% endfor %}
-                </dialog>
+                {% if not request.user.is_reporter %}
+                    <input class="peer hidden" type="checkbox"  id="priority">
+                    <!--TODO:priority-->
+                    <dialog open class="hidden peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-40">
+                        {% for i in priorities %}
+                        <label class="flex gap-2 p-1 priority">
+                            <input type="radio" name="priorities" value="{{i}}">
+                            <input type="hidden" value="{{i.color}}">    
+                            <p>{{i}}</p>
+                        </label>
+                        {% endfor %}
+                    </dialog>
+                {% endif %}
                 <label for="priority"  class="border rounded-xl p-2 flex gap-1 items-center btn" style="border-color: {{issue.priority.color}};" id="priority-shown">                           
                     <svg style="color: {{issue.priority.color}};" width="20" height="13" viewBox="0 0 23 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M2 7.87566C4.5 1.37554 15.5 -3.62451 21 7.87566C17 18.3756 5.5 15.8756 2 7.87566Z" stroke="currentColor" stroke-width="2"/>
@@ -53,17 +55,19 @@
         <div class="hidden peer-checked:block md:block shrink border-b border-b-neutral md:border-b-0 md:border-r-neutral md:border-r ">
             <div class="p-3 space-y-2 border-b-neutral border-b">
                 <div class="relative">
-                    <input class="peer hidden" type="checkbox" id="status">
-                    <!--TODO:status-->
-                    <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-30">
-                        {% for i in status %}
-                        <label class="flex gap-2 p-1 statue">
-                            <input type="radio" name="statuses" value="{{i}}">
-                            <input type="hidden" value="{{i.color}}">    
-                            <p>{{i}}</p>
-                        </label>
-                        {% endfor %}
-                    </dialog>
+                    {% if not request.user.is_reporter %}
+                        <input class="peer hidden" type="checkbox" id="status">
+                        <!--TODO:status-->
+                        <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-30">
+                            {% for i in status %}
+                            <label class="flex gap-2 p-1 statue">
+                                <input type="radio" name="statuses" value="{{i}}">
+                                <input type="hidden" value="{{i.color}}">    
+                                <p>{{i}}</p>
+                            </label>
+                            {% endfor %}
+                        </dialog>
+                    {% endif %}
                     <label for="status" class="flex items-center gap-2 rounded-box border p-2 px-3 btn justify-start" style="border-color: {{issue.status.color}};" id="status-shown">
                         <div class="w-4 h-4 rounded-full border-2 overflow-hidden" style="border-color: {{issue.status.color}};">
                             <div class="w-full h-full opacity-50" style="background-color: {{issue.status.color}};"></div>
@@ -78,33 +82,39 @@
                 <div class="space-y-1">
                     <p>Assigned People</p>
                     <!--TODO:assigned-->
-                    <div class="relative">
-                        <input class="peer hidden" type="checkbox" id="add-assignees">
-                        <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral  z-20 shadow-md shadow-base-300">
-                            {% for i in assignees %}
-                                <label class="flex gap-2 p-1 capitalize all-assignees" id="add-assignees-{{i.id}}">
-                                    <input type="checkbox" name="add-assignees" value="{{i.id}}">
-                                    <img src="{{i.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
-                                    <p>{{i}}</p>
-                                </label>
-                            {% endfor %}
-                        </dialog>
-                        <label for="add-assignees" class="btn w-full border-neutral border border-b-4 justify-start" id="assignees-shown">
-                            <p>Add Assignees</p>
-                        </label>
-                    </div>
+                    {% if not request.user.is_reporter %}
+                        <div class="relative">
+                            <input class="peer hidden" type="checkbox" id="add-assignees">
+                            <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral  z-20 shadow-md shadow-base-300">
+                                {% for i in assignees %}
+                                    <label class="flex gap-2 p-1 capitalize all-assignees" id="add-assignees-{{i.id}}">
+                                        <input type="checkbox" name="add-assignees" value="{{i.id}}">
+                                        <img src="{{i.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
+                                        <p>{{i}}</p>
+                                    </label>
+                                {% endfor %}
+                            </dialog>
+                            <label for="add-assignees" class="btn w-full border-neutral border border-b-4 justify-start" id="assignees-shown">
+                                <p>Add Assignees</p>
+                            </label>
+                        </div>
+                    {% endif %}
                     <div class="space-y-2 p-1">
                         {% for i in assignees %}
                             {% for u in assigneed_assignees %}
                                 {% if i.id == u.id %}
                                     <label id="assign_assignee-{{u.id}}"  class="flex items-center gap-1.5 p-1 px-3 btn justify-start shadow-none border border-neutral assignees-list">
-                                        <input type="checkbox" checked value="{{u.id}}" name="assignees">
+                                        {% if not request.user.is_reporter %}
+                                            <input type="checkbox" checked value="{{u.id}}" name="assignees">
+                                        {% endif %}
                                         <img src="{{u.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
                                         <p class="capitalize">{{u}}</p>
                                     </label>
                                 {% else %}
                                     <label id="assign_assignee-{{i.id}}"  class="items-center gap-1.5 p-1 px-3 btn justify-start shadow-none border border-neutral assignees-list hidden">
-                                        <input type="checkbox" value="{{i.id}}" name="assignees">
+                                        {% if not request.user.is_reporter %}
+                                            <input type="checkbox" value="{{i.id}}" name="assignees">
+                                        {% endif %}
                                         <img src="{{i.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
                                         <p class="capitalize">{{i}}</p>
                                     </label>
@@ -117,16 +127,18 @@
                     <p>Issue Type</p>
                     <!--TODO:Types-->
                     <div class="relative">
-                        <input class="peer hidden" type="checkbox" id="type">
-                        <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-10">
-                            {% for i in types %}
-                            <label class="types flex gap-2 p-1 capitalize">
-                                <input type="radio" name="types" value="{{i}}">
-                                <input type="hidden" value="{{i.color}}">    
-                                <p>{{i}}</p>
-                            </label>
-                            {% endfor %}
-                        </dialog>
+                        {% if not request.user.is_reporter %}
+                            <input class="peer hidden" type="checkbox" id="type">
+                            <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral z-10">
+                                {% for i in types %}
+                                <label class="types flex gap-2 p-1 capitalize">
+                                    <input type="radio" name="types" value="{{i}}">
+                                    <input type="hidden" value="{{i.color}}">    
+                                    <p>{{i}}</p>
+                                </label>
+                                {% endfor %}
+                            </dialog>
+                        {% endif %}
                         <label for="type" class="btn w-full border-neutral border border-b-4 justify-start capitalize" id="type-shown">
                             <div class="w-4 h-4 rounded-full overflow-hidden" style="background-color: {{issue.type.color}};">
                             </div>
@@ -176,67 +188,7 @@
 
             </div>
         </div>
-        <div class="flex flex-col grow h-fit p-2 gap-1 relative">
-            <div class="absolute h-[95%] w-[3px] bg-neutral-500 top-1/2 left-0 translate-x-9 -translate-y-1/2 -z-10">
-            </div>
-            <div id="thread">
-                {% for data in thread %}
-                    {% if data.model_name == "comment" %}
-                        <div class="card bg-base-300 border rounded-box border-neutral mb-2">
-                            <div class="flex justify-start items-center gap-2 px-3 p-2 border-b border-b-neutral">
-                                <img src="{{data.creator.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
-                                <p>{{data.creator}}</p>
-                                <p>{{data.updated_on|date:"d-m-Y"}}</p>
-                            </div>
-                            <div class="p-2 flex flex-col">
-                                <p>{{data.comment}}</p>
-                                <div class="gap-2 grid pt-1">
-                                    {% for file in data.files_set.all %}
-                                        <div class="btn border border-neutral bg-base-300 font-light text-sm flex w-fit items-center gap-1">
-                                            <img src="{% static 'img/save.svg' %}" alt="${files[i].name}">
-                                            <a href="{{file.upload.url}}" target="_blank" rel="noopener noreferrer">{{file}}</a>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    {% elif data.model_name == "activities" %}
-                        <div class="flex items-center gap-2 px-3.5 p-2">
-                            <img src="{{data.subject.image.url}}" alt="user" class="rounded-full w-8 h-8" height="24px" width="24px" />
-                            <p>{{data.subject}} {{data.verb}} {{data.object}} on {{data.created_on|date:"d-m-Y"}}</p>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            <div class="">
-                <div class="card bg-base-300 border rounded-box border-neutral">
-                    {% if not issue.is_locked %}
-                        <form hx-post="/view_issue/{{issue.id}}/" hx-target="this" hx-swap="none" id="commentForm">
-                            {% csrf_token %}
-                            <div class="flex justify-between items-center px-3 p-2 border-b border-b-neutral">
-                                <div class="flex items-center gap-2 ">
-                                    <img src="{{request.user.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
-                                    <p>{{request.user}}</p>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <button class="btn bg-base-200"  type="reset">Cancel</button>
-                                    <button type="submit" class="btn bg-success border-success-content">
-                                        <img src="{% static 'img/save.svg' %}" width="16px" height="16px"/>
-                                        <p>Submit</p>
-                                    </button>
-                                </div>
-                            </div>
-                            <textarea class="w-full min-h-36 text-base align-text-top p-2 px-3 resize-none outline-none min-w-full" name="comment" id="commentTextArea" placeholder="Write Your Comment..." ></textarea>
-                        </form>
-                    {% else %}
-                        <div class="flex gap-2 px-3 p-2">
-                            <img src="{% static 'img/locked.svg' %}" class=" opacity-50" height="20"  width="20" alt="issue locked">
-                            <p class="text-neutral">This issue is locked</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+        {% include "component/thread.html" with thread=thread issue=issue %}
     </div>
 </div>
 

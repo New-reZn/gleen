@@ -1,0 +1,62 @@
+{% load static %}
+<div class="flex flex-col grow h-fit p-2 gap-1 relative">
+    <div class="absolute h-[95%] w-[3px] bg-neutral-500 top-1/2 left-0 translate-x-9 -translate-y-1/2 -z-10">
+    </div>
+    <div id="thread">
+        {% for data in thread %}
+            {% if data.model_name == "comment" %}
+                <div class="card bg-base-300 border rounded-box border-neutral mb-2">
+                    <div class="flex justify-start items-center gap-2 px-3 p-2 border-b border-b-neutral">
+                        <img src="{{data.creator.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
+                        <p>{{data.creator}}</p>
+                        <p>{{data.updated_on|date:"d-m-Y"}}</p>
+                    </div>
+                    <div class="p-2 flex flex-col">
+                        <p>{{data.comment}}</p>
+                        <div class="gap-2 grid pt-1">
+                            {% for file in data.files_set.all %}
+                                <div class="btn border border-neutral bg-base-300 font-light text-sm flex w-fit items-center gap-1">
+                                    <img src="{% static 'img/save.svg' %}" alt="${files[i].name}">
+                                    <a href="{{file.upload.url}}" target="_blank" rel="noopener noreferrer">{{file}}</a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% elif data.model_name == "activities" %}
+                <div class="flex items-center gap-2 px-3.5 p-2">
+                    <img src="{{data.subject.image.url}}" alt="user" class="rounded-full w-8 h-8" height="24px" width="24px" />
+                    <p>{{data.subject}} {{data.verb}} {{data.object}} on {{data.created_on|date:"d-m-Y"}}</p>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <div class="">
+        <div class="card bg-base-300 border rounded-box border-neutral">
+            {% if not issue.is_locked %}
+                <form hx-post="/view_issue/{{issue.id}}/" hx-target="this" hx-swap="none" id="commentForm">
+                    {% csrf_token %}
+                    <div class="flex justify-between items-center px-3 p-2 border-b border-b-neutral">
+                        <div class="flex items-center gap-2 ">
+                            <img src="{{request.user.image.url}}" class="rounded-full w-8 h-8" height="24px" width="24px" alt="user" srcset="">
+                            <p>{{request.user}}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button class="btn bg-base-200"  type="reset">Cancel</button>
+                            <button type="submit" class="btn bg-success border-success-content">
+                                <img src="{% static 'img/save.svg' %}" width="16px" height="16px"/>
+                                <p>Submit</p>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea class="w-full min-h-36 text-base align-text-top p-2 px-3 resize-none outline-none min-w-full" name="comment" id="commentTextArea" placeholder="Write Your Comment..." ></textarea>
+                </form>
+            {% else %}
+                <div class="flex gap-2 px-3 p-2">
+                    <img src="{% static 'img/locked.svg' %}" class=" opacity-50" height="20"  width="20" alt="issue locked">
+                    <p class="text-neutral">This issue is locked</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
