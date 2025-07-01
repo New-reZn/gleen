@@ -2,7 +2,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from setup.models import GlobalSettings
-from gleen.helpers import gleen_authenticate,admin_privilege,get_object_or_none,htmx_required
+from gleen.helpers import gleen_authenticate,admin_privilege,get_object_or_none,htmx_required,notify_issue_assignees
 from django.contrib.auth import authenticate, login, logout
 from itertools import chain
 from operator import attrgetter
@@ -677,9 +677,7 @@ def view_issue(request,issue_id):
         
         thread_data=sorted(chain(comments,logs),key=attrgetter('created_on'))
         
-        assigneed_assignees=issue.assignees.all().union(
-            User.objects.filter(pk=issue.creator.pk)
-        )
+        assigneed_assignees=list(issue.assignees.values_list('id', flat=True))
         
         if not issue:
             return HttpResponse("wrong request")
@@ -728,9 +726,14 @@ def change_detail(request,issue_id):
         type=Types.objects.filter(name=type).first()
         status=Status.objects.filter(name=status).first()
         
+        
+        print(add_assignees)
+        
         if not issue or not priority or not status or not type:
             return redirect("/")
         
+        
+        #TODO:fix this
         issue.assignees.clear()
         for i in add_assignees:
             assignee=User.objects.filter(id=i).first()
@@ -788,6 +791,14 @@ def pin_issue(request,issue_id):
             issue.pinned_for.remove(request.user)
         else:
             issue.pinned_for.add(request.user)
+            
+    payload = {
+        "type": "issue.pinned",
+        "issue_id": issue.id,
+        "message": f"Issue #{issue.id} was pinned!",
+    }
+    
+    notify_issue_assignees(issue,payload)
     
     return redirect("/")
 
@@ -819,3 +830,4 @@ def lock_issue(request,issue_id):
     issue.save(updater=request.user)
     
     return redirect("/")
+

@@ -63,4 +63,18 @@
     </div>
 </div>
 
+<script>
+    const socket = new WebSocket(`ws://${window.location.host}/ws/notification/`);
+
+    socket.onopen = function(e) {
+        console.log("WebSocket connected");
+    };
+    
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log("Received:", data);
+    };
+
+</script>
+
 {% endblock content %}

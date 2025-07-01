@@ -71,6 +71,9 @@ class Issues(models.Model):
         og_assignees=og_issue.assignees.all()
         new_assignees=self.assignees.all()
         
+        print("original : ",og_assignees)
+        print("new : ",new_assignees)
+        
         if set(og_assignees)!=set(new_assignees):
             
             added_assignees=[x for x in new_assignees if x not in og_assignees]

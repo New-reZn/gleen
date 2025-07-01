@@ -1076,6 +1076,82 @@
       object-fit: cover;
     }
   }
+  .\!checkbox {
+    border: var(--border) solid var(--input-color, color-mix(in oklab, var(--color-base-content) 20%, #0000)) !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    appearance: none !important;
+    border-radius: var(--radius-selector) !important;
+    padding: calc(0.25rem * 1) !important;
+    vertical-align: middle !important;
+    color: var(--color-base-content) !important;
+    box-shadow: 0 1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 0 #0000 inset, 0 0 #0000 !important;
+    transition: background-color 0.2s, box-shadow 0.2s !important;
+    --size: calc(var(--size-selector, 0.25rem) * 6);
+    width: var(--size) !important;
+    height: var(--size) !important;
+    background-size: auto, calc(var(--noise) * 100%) !important;
+    background-image: none, var(--fx-noise) !important;
+    &:before {
+      --tw-content: "";
+      content: var(--tw-content) !important;
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      rotate: 45deg !important;
+      background-color: currentColor !important;
+      opacity: 0% !important;
+      transition: clip-path 0.3s, opacity 0.1s, rotate 0.3s, translate 0.3s !important;
+      transition-delay: 0.1s !important;
+      clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%) !important;
+      box-shadow: 0px 3px 0 0px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset !important;
+      font-size: 1rem !important;
+      line-height: 0.75 !important;
+    }
+    &:focus-visible {
+      outline: 2px solid var(--input-color, currentColor) !important;
+      outline-offset: 2px !important;
+    }
+    &:checked, &[aria-checked="true"] {
+      background-color: var(--input-color, #0000) !important;
+      box-shadow: 0 0 #0000 inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) !important;
+      &:before {
+        clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%) !important;
+        opacity: 100% !important;
+        @media print {
+          rotate: 0deg !important;
+        }
+        @media print {
+          background-color: transparent !important;
+        }
+        @media print {
+          --tw-content: "✔︎";
+        }
+        @media print {
+          clip-path: none !important;
+        }
+        @media (forced-colors: active) {
+          rotate: 0deg !important;
+          background-color: transparent !important;
+          --tw-content: "✔︎";
+          clip-path: none !important;
+        }
+      }
+    }
+    &:indeterminate {
+      &:before {
+        rotate: 0deg !important;
+        opacity: 100% !important;
+        translate: 0 -35% !important;
+        clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 80% 80%, 80% 100%) !important;
+      }
+    }
+    &:disabled {
+      cursor: not-allowed !important;
+      opacity: 20% !important;
+    }
+  }
   .checkbox {
     border: var(--border) solid var(--input-color, color-mix(in oklab, var(--color-base-content) 20%, #0000));
     position: relative;
@@ -1425,18 +1501,6 @@
     padding: 0.5rem;
     min-height: 4rem;
   }
-  .stat {
-    display: inline-grid;
-    width: 100%;
-    column-gap: calc(0.25rem * 4);
-    padding-inline: calc(0.25rem * 6);
-    padding-block: calc(0.25rem * 4);
-    grid-template-columns: repeat(1, 1fr);
-    &:not(:last-child) {
-      border-inline-end: var(--border) dashed color-mix(in oklab, currentColor 10%, #0000);
-      border-block-end: none;
-    }
-  }
   .label {
     display: inline-flex;
     align-items: center;
@@ -1496,8 +1560,8 @@
   .h-\[25px\] {
     height: 25px;
   }
-  .h-\[95\%\] {
-    height: 95%;
+  .h-\[92\%\] {
+    height: 92%;
   }
   .h-fit {
     height: fit-content;
@@ -1646,9 +1710,6 @@
   .translate-y-1\.5 {
     --tw-translate-y: calc(var(--spacing) * 1.5);
     translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-  .-rotate-45 {
-    rotate: calc(45deg * -1);
   }
   .rotate-45 {
     rotate: 45deg;
@@ -1947,9 +2008,6 @@
   .bg-drop\/80 {
     background-color: color-mix(in oklab, var(--color-drop) 80%, transparent);
   }
-  .bg-neutral {
-    background-color: var(--color-neutral);
-  }
   .bg-neutral-500 {
     background-color: var(--color-neutral-500);
   }
@@ -2150,9 +2208,6 @@
   }
   .opacity-0 {
     opacity: 0%;
-  }
-  .opacity-5 {
-    opacity: 5%;
   }
   .opacity-30 {
     opacity: 30%;
