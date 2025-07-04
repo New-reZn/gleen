@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from gleen.helpers import notify_issue_assignees
+
 # Create your models here.
 
 class User(AbstractUser):
@@ -59,6 +61,7 @@ class Issues(models.Model):
     
     def save(self, *args, **kwargs):
         
+        
         updater = kwargs.pop('updater', None)
         
         if not self.pk:
@@ -68,49 +71,99 @@ class Issues(models.Model):
         
         og_issue = Issues.objects.get(pk=self.pk)
         
-        og_assignees=og_issue.assignees.all()
-        new_assignees=self.assignees.all()
-        
-        print("original : ",og_assignees)
-        print("new : ",new_assignees)
-        
-        if set(og_assignees)!=set(new_assignees):
-            
-            added_assignees=[x for x in new_assignees if x not in og_assignees]
-            
-            Activities.objects.create(issue=self,subject=updater,verb="assigned issue to",object=", ".join(added_assignees),type="assigned")
-            
-            removed_assignees=[x for x in og_assignees if x not in new_assignees]
-            
-            Activities.objects.create(issue=self,subject=updater,verb="unassigned issue from",object=", ".join(removed_assignees),type="unassigned")
         
         if og_issue.status!=self.status:    
             ChartObject.objects.create(plan=self.plan,status=self.status)
             Activities.objects.create(issue=self,subject=updater,verb="changed status to",object=self.status,type="status")
+            payload = {
+                    "type": "issue.status",
+                    "issue_id": self.id,
+                    "message": f"Issue #{self.id} status has changed to {self.status}",
+                }
+            
+            notify_issue_assignees(self,payload)
             
         if og_issue.priority!=self.priority:
             Activities.objects.create(issue=self,subject=updater,verb="changed priority to",object=self.priority,type="priority")
+            payload = {
+                    "type": "issue.priority",
+                    "issue_id": self.id,
+                    "message": f"Issue #{self.id} priority has changed to {self.priority}",
+                }
+                
+            notify_issue_assignees(self,payload)
             
         if og_issue.type!=self.type:
             Activities.objects.create(issue=self,subject=updater,verb="changed type to",object=self.type,type="type")
+            payload = {
+                    "type": "issue.type",
+                    "issue_id": self.id,
+                    "message": f"Issue #{self.id} type has changed to {self.type}",
+                }
+                
+            notify_issue_assignees(self,payload)
         
         if og_issue.is_pinned!=self.is_pinned:
             if self.is_pinned:
                 Activities.objects.create(issue=self,subject=updater,verb="pinned",object=self.name,type="pinned")
+                payload = {
+                    "type": "issue.pinned",
+                    "issue_id": self.id,
+                    "message": f"Issue #{self.id} is pinned",
+                }
+                
+                notify_issue_assignees(self,payload)
             else:
                 Activities.objects.create(issue=self,subject=updater,verb="unpinned",object=self.name,type="pinned")
+                payload = {
+                    "type": "issue.unpinned",
+                    "issue_id": self.id,
+                    "message": f"Issue #{self.id} is unpinned",
+                }
+                
+                notify_issue_assignees(self,payload)
             
         if og_issue.is_locked!=self.is_locked:
+            
             if self.is_locked:
                 Activities.objects.create(issue=self,subject=updater,verb="locked",object=self.name,type="locked")
+                payload = {
+                    "type": "issue.locked",
+                    "issue_id": self.id,
+                    "message": f"Issue #{self.id} is locked",
+                }
+                
+                
+                notify_issue_assignees(self,payload)
             else:
                 Activities.objects.create(issue=self,subject=updater,verb="unlocked",object=self.name,type="locked")
+                payload = {
+                    "type": "issue.unlocked",
+                    "issue_id": self.id,
+                    "message": f"Issue #{self.id} is unlocked",
+                }
+                
+                notify_issue_assignees(self,payload)
         
         if og_issue.name!=self.name:
             Activities.objects.create(issue=self,subject=updater,verb=f"changed issue name to",object=self.name,type="name",previous_name=og_issue.name)
+            payload = {
+                    "type": "issue.name",
+                    "issue_id": self.id,
+                    "message": f"Issue #{self.id} name has changed to {self.name}",
+                }
+                
+            notify_issue_assignees(self,payload)
         
         if og_issue.desc!=self.desc:
             Activities.objects.create(issue=self,subject=updater,verb=f"changed issue description to",object=self.desc,type="description",previous_desc=og_issue.desc)
+            payload = {
+                    "type": "issue.desc",
+                    "issue_id": self.id,
+                    "message": f"Issue #{self.id} description has changed",
+                }
+                
+            notify_issue_assignees(self,payload)
         
         super().save(*args, **kwargs)
                     

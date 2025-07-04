@@ -96,7 +96,7 @@ def notify_user(user, payload):
         group,
         {
             "type": "user_notification",
-            "payload": payload,
+            "text": payload,
         }
     )
 

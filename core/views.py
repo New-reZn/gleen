@@ -2,7 +2,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from setup.models import GlobalSettings
-from gleen.helpers import gleen_authenticate,admin_privilege,get_object_or_none,htmx_required,notify_issue_assignees
+from gleen.helpers import gleen_authenticate,admin_privilege,get_object_or_none,htmx_required
 from django.contrib.auth import authenticate, login, logout
 from itertools import chain
 from operator import attrgetter
@@ -449,14 +449,6 @@ def create_issue(request,status_id=None):
             
         issue.save(updater=request.user)
         
-        for assingee_id in assignees_input:
-            assingee=User.objects.filter(id=assingee_id).first()
-            if not assingee:
-                return HttpResponse("wrong request")
-            issue.assignees.add(assingee)
-        
-        ChartObject.objects.create(plan=current_plan,status=default_status)
-        
         comment=Comment.objects.create(
             creator=request.user,
             issue=issue,
@@ -468,7 +460,16 @@ def create_issue(request,status_id=None):
                 comment=comment,
                 upload=fileObject
             )
-            
+        
+        issue._acting_user=request.user
+        
+        for assingee_id in assignees_input:
+            assingee=User.objects.filter(id=assingee_id).first()
+            if not assingee:
+                return HttpResponse("wrong request")
+            issue.assignees.add(assingee)
+        
+        ChartObject.objects.create(plan=current_plan,status=default_status)
         
         return redirect("/") 
     return redirect("/") 
@@ -682,7 +683,6 @@ def view_issue(request,issue_id):
         if not issue:
             return HttpResponse("wrong request")
 
-        
         data={
             "plan":current_plan,
             "assignees":User.objects.all(),
@@ -732,16 +732,14 @@ def change_detail(request,issue_id):
         if not issue or not priority or not status or not type:
             return redirect("/")
         
+        issue._acting_user = request.user
+
+        new_ids = [
+            int(pk) for pk in add_assignees
+            if pk.isdigit() and int(pk) != issue.creator_id
+        ]
         
-        #TODO:fix this
-        issue.assignees.clear()
-        for i in add_assignees:
-            assignee=User.objects.filter(id=i).first()
-            if assignee==issue.creator:
-                pass
-            if not assignee:
-                return redirect("/")
-            issue.assignees.add(assignee)
+        issue.assignees.set(new_ids)
             
         issue.priority=priority
         issue.type=type
@@ -791,14 +789,6 @@ def pin_issue(request,issue_id):
             issue.pinned_for.remove(request.user)
         else:
             issue.pinned_for.add(request.user)
-            
-    payload = {
-        "type": "issue.pinned",
-        "issue_id": issue.id,
-        "message": f"Issue #{issue.id} was pinned!",
-    }
-    
-    notify_issue_assignees(issue,payload)
     
     return redirect("/")
 
