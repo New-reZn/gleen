@@ -34,4 +34,5 @@ urlpatterns = [
     path("sort_types/",views.sort_types),
     path("types_modification/<int:type_id>/",views.update_types),
     path("types_deletion/<int:type_id>/",views.delete_types),
+    path("update_notification_preference/",views.update_notification_preference)
 ]

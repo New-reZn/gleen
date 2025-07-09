@@ -33,19 +33,15 @@
                         <img src="{% static 'img/notification.svg' %}" alt="notification" height="24px" width="24px" srcset="">
                     </div>
                                         
-                    {% if notifications is empty %}
-                        <div tabindex="0" style="left:-17.3rem; top:3rem"  class="dropdown-content bg-base-200 rounded-box z-1 w-96 shadow-sm">
-                            <div class="p-2">
-                                No new notifications.
-                            </div>
-                        </div>
-                    {% else %}
-                        <ul tabindex="0" style="left:-18.5rem; top:3rem"  class="dropdown-content menu bg-base-200 rounded-box z-1 w-96 p-2 shadow-sm">
+                    <ul tabindex="0" style="left:-18.5rem; top:3rem"  class="dropdown-content menu bg-base-200 rounded-box z-1 w-96 p-2 shadow-sm" id="notificationBox">
+                        {% if notifications is empty %}
+                            <li id="emptyNotification"><a>No new notifications.</a></li>
+                        {% else %}
                             <li><a>Item 1</a></li>
                             <li><a>Item 2</a></li>
-                        </ul>
-                    {% endif %}
+                        {% endif %}
 
+                    </ul>
                 </li>
 
                 <li>
@@ -62,5 +58,24 @@
         {% endblock %}
     </div>
 </div>
+
+<script>
+    const socket = new WebSocket(`ws://${window.location.host}/ws/notification/`);
+
+    socket.onopen = function(e) {
+        console.log("WebSocket connected");
+    };
+    
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log("Received:", data);
+        const notificationBox=document.querySelector("#notificationBox");
+        try{
+            notificationBox.querySelector("#emptyNotification").remove();
+        }catch{}
+        notificationBox.innerHTML+=`<li><a>${data.message}</a></li>`;
+    };
+
+</script>
 
 {% endblock content %}

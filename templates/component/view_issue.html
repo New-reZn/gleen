@@ -86,12 +86,15 @@
                         <div class="relative">
                             <input class="peer hidden" type="checkbox" id="add-assignees">
                             <dialog open class="hidden w-full peer-checked:grid top-full translate-y-1 bg-base-200 p-2 rounded-box border border-neutral  z-20 shadow-md shadow-base-300">
-                                {% for i in assignees %}
-                                    <label class="flex gap-2 p-1 capitalize all-assignees" id="add-assignees-{{i.id}}">
-                                        <input type="checkbox" name="add-assignees" value="{{i.id}}">
-                                        <img src="{{i.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
-                                        <p>{{i}}</p>
-                                    </label>
+                                {% for assignee in assignees %}
+                                    {% if not issue.creator.id == assignee.id %}
+
+                                        <label class="flex gap-2 p-1 capitalize all-assignees" id="add-assignees-{{assignee.id}}">
+                                            <input type="checkbox" name="add-assignees" value="{{assignee.id}}">
+                                            <img src="{{assignee.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
+                                            <p>{{assignee}}</p>
+                                        </label>
+                                    {% endif %}
                                 {% endfor %}
                             </dialog>
                             <label for="add-assignees" class="btn w-full border-neutral border border-b-4 justify-start" id="assignees-shown">
@@ -100,26 +103,24 @@
                         </div>
                     {% endif %}
                     <div class="space-y-2 p-1">
-                        {% for i in assignees %}
-                            {% for u in assigneed_assignees %}
-                                {% if i.id == u.id %}
-                                    <label id="assign_assignee-{{u.id}}"  class="flex items-center gap-1.5 p-1 px-3 btn justify-start shadow-none border border-neutral assignees-list">
-                                        {% if not request.user.is_reporter %}
-                                            <input type="checkbox" checked value="{{u.id}}" name="assignees">
-                                        {% endif %}
-                                        <img src="{{u.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
-                                        <p class="capitalize">{{u}}</p>
-                                    </label>
-                                {% else %}
-                                    <label id="assign_assignee-{{i.id}}"  class="items-center gap-1.5 p-1 px-3 btn justify-start shadow-none border border-neutral assignees-list hidden">
-                                        {% if not request.user.is_reporter %}
-                                            <input type="checkbox" value="{{i.id}}" name="assignees">
-                                        {% endif %}
-                                        <img src="{{i.image.url}}" class="rounded-full w-6 h-6" height="24px" width="24px" alt="assignee">
-                                        <p class="capitalize">{{i}}</p>
-                                    </label>
-                                {% endif %}
-                            {% endfor %}
+                        {% for assignee in assignees %}
+                            {% if assignee.id in assigneed_assignees %}
+                                <label id="assign_assignee-{{ assignee.id }}" class="flex items-center gap-1.5 p-1 px-3 btn justify-start shadow-none border border-neutral assignees-list">
+                                    {% if not request.user.is_reporter %}
+                                        <input type="checkbox" checked value="{{ assignee.id }}" name="assignees">
+                                    {% endif %}
+                                    <img src="{{ assignee.image.url }}" class="rounded-full w-6 h-6" alt="assignee">
+                                    <p class="capitalize">{{ assignee }}</p>
+                                </label>
+                            {% else %}
+                                <label id="assign_assignee-{{ assignee.id }}" class="items-center gap-1.5 p-1 px-3 btn justify-start shadow-none border border-neutral assignees-list hidden">
+                                    {% if not request.user.is_reporter %}
+                                        <input type="checkbox" value="{{ assignee.id }}" name="assignees">
+                                    {% endif %}
+                                    <img src="{{ assignee.image.url }}" class="rounded-full w-6 h-6" alt="assignee">
+                                    <p class="capitalize">{{ assignee }}</p>
+                                </label>
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>
@@ -308,11 +309,11 @@
         const all_assignees=document.querySelectorAll(".all-assignees");
         
         assignees_list.forEach(e=>{
-            const a_id=e.querySelector(`input[type="checkbox"]`);
-            const shown_assingees=document.querySelector(`#add-assignees-${a_id.value}`);
+            const assignees_checkbox=e.querySelector(`input[type="checkbox"]`);
+            const shown_assingees=document.querySelector(`#add-assignees-${assignees_checkbox.value}`);
 
-            a_id.addEventListener("change",(i)=>{
-                if(!i.target.checked){
+            assignees_checkbox.addEventListener("change",(checkbox)=>{
+                if(!checkbox.target.checked){
                     e.classList.add("hidden");
                     e.classList.remove("flex");
                     shown_assingees.querySelector(`input[type="checkbox"]`).checked=false;
@@ -321,20 +322,24 @@
                     e.classList.remove("hidden");
                     shown_assingees.querySelector(`input[type="checkbox"]`).checked=true;
                 }
-                const event = new CustomEvent('detailsUpdated');
-                close_switch.dispatchEvent(event);
+
+                const dispatchEvent = new CustomEvent('detailsUpdated');
+                close_switch.dispatchEvent(dispatchEvent);
             })
 
-            shown_assingees.querySelector(`input[type="checkbox"]`).checked=true;
+            if(shown_assingees){
+                shown_assingees.querySelector(`input[type="checkbox"]`).checked=assignees_checkbox.checked;
+            }
 
         })
 
         all_assignees.forEach(e=>{
-           const ele=e.querySelector(`input[type="checkbox"]`);
-           const shown_assingees=document.querySelector(`#assign_assignee-${ele.value}`);
-
-            ele.addEventListener("change",(i)=>{
-                if(!i.target.checked){
+            const assignee_checkbox=e.querySelector(`input[type="checkbox"]`);
+            const shown_assingees=document.querySelector(`#assign_assignee-${assignee_checkbox.value}`);
+            
+            assignee_checkbox.addEventListener("change",(event)=>{
+                console.log("here shown")
+                if(!event.target.checked){
                     shown_assingees.classList.add("hidden");
                     shown_assingees.classList.remove("flex");
                     shown_assingees.querySelector(`input[type="checkbox"]`).checked=false;
@@ -343,11 +348,10 @@
                     shown_assingees.classList.remove("hidden");
                     shown_assingees.querySelector(`input[type="checkbox"]`).checked=true;
                 }
-                const event = new CustomEvent('detailsUpdated');
-                close_switch.dispatchEvent(event);
+                const dispatchEvent = new CustomEvent('detailsUpdated');
+                close_switch.dispatchEvent(dispatchEvent);
             })
         })
-
         
     })();
 </script>

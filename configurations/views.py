@@ -7,13 +7,14 @@ from core.groups import *
 from django.core.files.base import ContentFile
 import os
 from django.core.files.storage import default_storage
+from .models import NotificationPreferences
 
 # Create your views here.
 
 def setting(request):
     
     config=config=GlobalSettings.objects.first()
-        
+    
     return render(request,"setting.html",{
         "title":f"{config.name}:Settings",
         "icon":config.image.url,
@@ -23,6 +24,7 @@ def setting(request):
         "statuses":Status.objects.all(),
         "priorities":Priority.objects.all(),
         "types":Types.objects.all(),
+        "prefs":NotificationPreferences.objects.get_or_create(user=request.user)[0]
     })
     
 @admin_privilege
@@ -79,7 +81,6 @@ def sort_plans(request):
         elif sort=="3":
             plans=plans.order_by("name")
             
-        print(plans,sort,search)
         
         return render(request,"component/plan_table.html",{"plans":plans})
     else:
@@ -171,6 +172,8 @@ def create_user(request):
                 user.image = full_path
                 user.groups.add(Reporters)
                 user.save()
+            
+            NotificationPreferences.objects.create(user)
             
             response = HttpResponse()
             response["HX-Redirect"] = "/settings/"
@@ -459,7 +462,6 @@ def update_status(request,status_id):
         
         status = get_object_or_none(Status,id=status_id)
         
-        print(status)
         if name and status.name!=name:
             status.name = name.strip()
         
@@ -606,7 +608,6 @@ def update_priority(request,priority_id):
         
         priority = get_object_or_none(Priority,id=priority_id)
         
-        print(priority)
         if name and priority.name!=name:
             priority.name = name.strip()
         
@@ -753,7 +754,6 @@ def update_types(request,type_id):
         
         types = get_object_or_none(Types,id=type_id)
         
-        print(types)
         if name and types.name!=name:
             types.name = name.strip()
         
@@ -793,3 +793,18 @@ def update_types(request,type_id):
         "plans":Plan.objects.all(),
         "selected_plan_ids": selected_plan_ids,
     })
+
+def update_notification_preference(request):
+    prefs = request.user.notification_preferences
+
+    if request.method == "POST":
+        # For each boolean field, update from POST (“True” if present)
+        for field in [
+            "issue_assigned", "issue_unassigned", "issue_status",
+            "issue_priority", "issue_type", "issue_pinned",
+            "issue_unpinned", "issue_locked", "issue_unlocked",
+            "issue_name", "issue_desc",
+        ]:
+            setattr(prefs, field, field in request.POST)
+        prefs.save()
+    return redirect("/settings/")

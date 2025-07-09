@@ -1,6 +1,8 @@
 from setup.models import GlobalSettings
 from django.shortcuts import redirect,HttpResponse
 from django.shortcuts import _get_queryset
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 import re
 import unicodedata
 import uuid
@@ -86,3 +88,48 @@ def rep_privilege(view_func):
             return view_func(request, *args, **kwargs)
         
     return wrapper
+
+def notify_user(user, payload):
+    channel_layer = get_channel_layer()
+    group = f"user_{user.id}"
+    pref_field = payload.get("type", "").replace(".", "_")
+    prefs = getattr(user, "notification_preferences", None)
+
+    if not prefs:
+        return
+
+    if not getattr(prefs, pref_field, False):
+        return
+    
+    async_to_sync(channel_layer.group_send)(
+        group,
+        {
+            "type": "user_notification",
+            "text": payload,
+        }
+    )
+
+def notify_users(user_qs, payload: dict):
+    channel_layer = get_channel_layer()
+    pref_field = payload.get("type", "").replace(".", "_")
+    for user in user_qs:
+        prefs = getattr(user, "notification_preferences", None)
+        
+        if not prefs:
+            continue
+        
+        if not getattr(prefs, pref_field, False):
+            continue
+        
+        group = f"user_{user.id}"
+        async_to_sync(channel_layer.group_send)(
+            group,
+            {
+                "type": "user_notification",
+                "text": payload,
+            }
+        )
+
+def notify_issue_assignees(issue, payload: dict):
+    notify_users(issue.assignees.all(), payload)
+    

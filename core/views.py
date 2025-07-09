@@ -296,7 +296,6 @@ def create_plan(request):
             Types.objects.bulk_create(type_objects)
             
             for priority_object in priorities_objects:
-                print(priority_object,priority_object.plan)
                 priority_object.plan.add(plan)
                 
             for status_object in status_objects:
@@ -449,14 +448,6 @@ def create_issue(request,status_id=None):
             
         issue.save(updater=request.user)
         
-        for assingee_id in assignees_input:
-            assingee=User.objects.filter(id=assingee_id).first()
-            if not assingee:
-                return HttpResponse("wrong request")
-            issue.assignees.add(assingee)
-        
-        ChartObject.objects.create(plan=current_plan,status=default_status)
-        
         comment=Comment.objects.create(
             creator=request.user,
             issue=issue,
@@ -468,7 +459,16 @@ def create_issue(request,status_id=None):
                 comment=comment,
                 upload=fileObject
             )
-            
+        
+        issue._acting_user=request.user
+        
+        for assingee_id in assignees_input:
+            assingee=User.objects.filter(id=assingee_id).first()
+            if not assingee:
+                return HttpResponse("wrong request")
+            issue.assignees.add(assingee)
+        
+        ChartObject.objects.create(plan=current_plan,status=default_status)
         
         return redirect("/") 
     return redirect("/") 
@@ -590,7 +590,6 @@ def create_chart(request):
         earliest=ChartObject.objects.earliest("created_on")
         start_date = earliest.created_on.date()
 
-        print(start_date,end_date)
         
         days = (end_date - start_date).days + 1
         date_mapping=[]
@@ -629,7 +628,6 @@ def create_chart(request):
     else:
         return HttpResponse("wrong request")
     
-    print(date_mapping,mappings)
     
     return render(request,"component/chart.html",{"chartdata":mappings,"chartdate":date_mapping})
 
@@ -651,7 +649,6 @@ def kanban_change(request):
         issue.status=status
         issue.save(updater=request.user)
         
-        print("new_status:",status,"new_issues:",issue)
         return HttpResponse("ok")
     
 @htmx_required
@@ -677,14 +674,11 @@ def view_issue(request,issue_id):
         
         thread_data=sorted(chain(comments,logs),key=attrgetter('created_on'))
         
-        assigneed_assignees=issue.assignees.all().union(
-            User.objects.filter(pk=issue.creator.pk)
-        )
+        assigneed_assignees=list(issue.assignees.values_list('id', flat=True))
         
         if not issue:
             return HttpResponse("wrong request")
 
-        
         data={
             "plan":current_plan,
             "assignees":User.objects.all(),
@@ -728,17 +722,19 @@ def change_detail(request,issue_id):
         type=Types.objects.filter(name=type).first()
         status=Status.objects.filter(name=status).first()
         
+        
+        
         if not issue or not priority or not status or not type:
             return redirect("/")
         
-        issue.assignees.clear()
-        for i in add_assignees:
-            assignee=User.objects.filter(id=i).first()
-            if assignee==issue.creator:
-                pass
-            if not assignee:
-                return redirect("/")
-            issue.assignees.add(assignee)
+        issue._acting_user = request.user
+
+        new_ids = [
+            int(pk) for pk in add_assignees
+            if pk.isdigit() and int(pk) != issue.creator_id
+        ]
+        
+        issue.assignees.set(new_ids)
             
         issue.priority=priority
         issue.type=type
@@ -819,3 +815,4 @@ def lock_issue(request,issue_id):
     issue.save(updater=request.user)
     
     return redirect("/")
+

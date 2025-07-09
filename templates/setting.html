@@ -570,6 +570,132 @@
                     <input type="radio" name="menu" class="hidden peer" id="notification-alerts">
                     <div class="peer-checked:flex flex-col gap-4 hidden">
                         <p class="text-lg">Notification & alerts</p>
+                        <div class="">
+                            <p>Notification Types</p>
+                            <p class="text-sm text-neutral">Enable/disable alerts for notifications types</p>
+                        </div>
+                        <form action="/update_notification_preference/" class="flex flex-col gap-3" method="post">
+                            {% csrf_token %}
+                            <div class="flex flex-col gap-2 w-full">
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.assigned” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_assigned"
+                                    value="True"
+                                    {% if prefs.issue_assigned %}checked{% endif %}
+                                >
+                                </div>
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.unassigned” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_unassigned"
+                                    value="True"
+                                    {% if prefs.issue_unassigned %}checked{% endif %}
+                                >
+                                </div>
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.status” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_status"
+                                    value="True"
+                                    {% if prefs.issue_status %}checked{% endif %}
+                                >
+                                </div>
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.priority” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_priority"
+                                    value="True"
+                                    {% if prefs.issue_priority %}checked{% endif %}
+                                >
+                                </div>
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.type” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_type"
+                                    value="True"
+                                    {% if prefs.issue_type %}checked{% endif %}
+                                >
+                                </div>
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.pinned” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_pinned"
+                                    value="True"
+                                    {% if prefs.issue_pinned %}checked{% endif %}
+                                >
+                                </div>
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.unpinned” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_unpinned"
+                                    value="True"
+                                    {% if prefs.issue_unpinned %}checked{% endif %}
+                                >
+                                </div>
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.locked” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_locked"
+                                    value="True"
+                                    {% if prefs.issue_locked %}checked{% endif %}
+                                >
+                                </div>
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.unlocked” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_unlocked"
+                                    value="True"
+                                    {% if prefs.issue_unlocked %}checked{% endif %}
+                                >
+                                </div>
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.name” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_name"
+                                    value="True"
+                                    {% if prefs.issue_name %}checked{% endif %}
+                                >
+                                </div>
+
+                                <div class="flex w-full justify-between items-center px-4">
+                                <p>Allow “issue.desc” notifications</p>
+                                <input
+                                    type="checkbox"
+                                    name="issue_desc"
+                                    value="True"
+                                    {% if prefs.issue_desc %}checked{% endif %}
+                                >
+                                </div>
+
+                            </div>
+
+                            <div class="flex w-full justify-end">
+                                <button type="submit" class="btn btn-success border border-success-content text-white">
+                                Save
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
         
