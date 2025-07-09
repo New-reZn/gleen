@@ -92,6 +92,15 @@ def rep_privilege(view_func):
 def notify_user(user, payload):
     channel_layer = get_channel_layer()
     group = f"user_{user.id}"
+    pref_field = payload.get("type", "").replace(".", "_")
+    prefs = getattr(user, "notification_preferences", None)
+
+    if not prefs:
+        return
+
+    if not getattr(prefs, pref_field, False):
+        return
+    
     async_to_sync(channel_layer.group_send)(
         group,
         {
@@ -102,7 +111,16 @@ def notify_user(user, payload):
 
 def notify_users(user_qs, payload: dict):
     channel_layer = get_channel_layer()
+    pref_field = payload.get("type", "").replace(".", "_")
     for user in user_qs:
+        prefs = getattr(user, "notification_preferences", None)
+        
+        if not prefs:
+            continue
+        
+        if not getattr(prefs, pref_field, False):
+            continue
+        
         group = f"user_{user.id}"
         async_to_sync(channel_layer.group_send)(
             group,

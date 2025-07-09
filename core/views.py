@@ -296,7 +296,6 @@ def create_plan(request):
             Types.objects.bulk_create(type_objects)
             
             for priority_object in priorities_objects:
-                print(priority_object,priority_object.plan)
                 priority_object.plan.add(plan)
                 
             for status_object in status_objects:
@@ -591,7 +590,6 @@ def create_chart(request):
         earliest=ChartObject.objects.earliest("created_on")
         start_date = earliest.created_on.date()
 
-        print(start_date,end_date)
         
         days = (end_date - start_date).days + 1
         date_mapping=[]
@@ -630,7 +628,6 @@ def create_chart(request):
     else:
         return HttpResponse("wrong request")
     
-    print(date_mapping,mappings)
     
     return render(request,"component/chart.html",{"chartdata":mappings,"chartdate":date_mapping})
 
@@ -652,7 +649,6 @@ def kanban_change(request):
         issue.status=status
         issue.save(updater=request.user)
         
-        print("new_status:",status,"new_issues:",issue)
         return HttpResponse("ok")
     
 @htmx_required
@@ -727,7 +723,6 @@ def change_detail(request,issue_id):
         status=Status.objects.filter(name=status).first()
         
         
-        print(add_assignees)
         
         if not issue or not priority or not status or not type:
             return redirect("/")
